@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	android:id="@+id/widget37"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+<Button
+	android:id="@+id/sendToCloud"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:text="@string/sendFile"
+	android:layout_below="@+id/selectFilesBtn"
+	android:layout_alignParentLeft="true" />
+<Button
+	android:id="@+id/selectFilesBtn"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:text="@string/data_select"
+	android:layout_below="@+id/filepath"
+	android:layout_alignParentLeft="true" />
+
+<TextView
+    android:id="@+id/filepath"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
+    android:gravity="center"
+    android:text="@string/data_upload"
+    android:textSize="20sp" />
+
+</RelativeLayout>

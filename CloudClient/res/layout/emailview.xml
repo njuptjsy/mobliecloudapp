@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" 
+    android:padding="15sp">
+    
+    <TextView 
+        android:id="@+id/labelsend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/labelsend"
+        android:gravity="center"
+        android:textSize="30sp"
+        />
+    
+    <TextView 
+        android:id="@+id/problemtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below ="@id/labelsend"
+        android:text="@string/problemcontext"
+        android:textSize="25sp"
+        />
+    <Button
+        android:id="@+id/sendmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sendmailbutton"
+        android:layout_alignParentBottom="true"
+        />
+    <EditText 
+        android:id="@+id/problem"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_below ="@id/problemtitle"
+        android:layout_above="@id/sendmail"
+        />
+    
+    
+        
+        
+        
+    
+   
+</RelativeLayout>
