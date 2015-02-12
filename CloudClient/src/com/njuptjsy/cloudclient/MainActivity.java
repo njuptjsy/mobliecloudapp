@@ -1,12 +1,10 @@
 package com.njuptjsy.cloudclient;
 
 import java.util.Locale;
-
-import com.njuptjsy.cloudclient.R.string;
-
 import android.support.v7.app.ActionBarActivity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.app.AliasActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
