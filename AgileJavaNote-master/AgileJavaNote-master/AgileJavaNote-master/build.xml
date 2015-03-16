@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 是否需要使用 ANT -->
+<project name = "AgileJava01" default = "junitgui" basedir = "." >
+    <property name = "junitJar" value = "">
+        
+        
+</project>
