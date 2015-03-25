@@ -1,4 +1,4 @@
-package com.njuptjsy.cloudclient;
+ï»¿package com.njuptjsy.cloudclient;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class FileExplore extends Activity implements OnItemClickListener {
 	private static final int IM_BACK = IM_PARENT + 1;
 	private static final String DYNAMICACTION = "com.njuptjsy.cloudclient.SelectFilesActivity";
 	ListView itemlist = null;
-	String path = "/";//³õÊ¼Â·¾¶ÊÇ¸ùÂ·¾¶
+	String path = "/";//åˆå§‹è·¯å¾„æ˜¯æ ¹è·¯å¾„
 	List<Map<String, Object>> list;
 	
 	@Override
@@ -36,39 +36,39 @@ public class FileExplore extends Activity implements OnItemClickListener {
 		refreshListItems(path);
 	}
 	
-    /*¸ù¾İpath¸üĞÂÂ·¾¶ÁĞ±í*/
+    /*æ ¹æ®pathæ›´æ–°è·¯å¾„åˆ—è¡¨*/
 	private void refreshListItems(String path) {
 		setTitle(FileExplore.this.getString(R.string.file_explorer)+path);
 		list = buildListForSimpleAdapter(path);
 		
 		SimpleAdapter notes = new SimpleAdapter(this, list, R.layout.file_row,
 				new String[] { "name", "path" ,"img"}, new int[] { R.id.name,
-						R.id.desc ,R.id.img});//¹¹½¨listView
+						R.id.desc ,R.id.img});//æ„å»ºlistView
 		
 		itemlist.setAdapter(notes);
-		itemlist.setOnItemClickListener(this);//ÎªlistView°ó¶¨¼àÌıÆ÷£¬µã»÷Ê±×Ô¶¯µ÷ÓÃonItemClickº¯Êı
+		itemlist.setOnItemClickListener(this);//ä¸ºlistViewç»‘å®šç›‘å¬å™¨ï¼Œç‚¹å‡»æ—¶è‡ªåŠ¨è°ƒç”¨onItemClickå‡½æ•°
 		itemlist.setSelection(0);
 	}
-    /*¸ù¾İÂ·¾¶Éú³ÉÒ»¸ö°üº¬Â·¾¶µÄÁĞ±í
-     * ½«Éú²úµÄÁĞ±í±£´æÔÚlistÈİÆ÷ÖĞ
-     * ÓÃÓÚÉú³ÉlistView
+    /*æ ¹æ®è·¯å¾„ç”Ÿæˆä¸€ä¸ªåŒ…å«è·¯å¾„çš„åˆ—è¡¨
+     * å°†ç”Ÿäº§çš„åˆ—è¡¨ä¿å­˜åœ¨listå®¹å™¨ä¸­
+     * ç”¨äºç”ŸæˆlistView
      * */
 	private List<Map<String, Object>> buildListForSimpleAdapter(String path) {
 
 		List<Map<String, Object>> list;
-		File[] files = new File(path).listFiles();//ÁĞ³ö¸ÃÂ·¾¶ÏÂËùÓĞ×ÓÎÄ¼ş
+		File[] files = new File(path).listFiles();//åˆ—å‡ºè¯¥è·¯å¾„ä¸‹æ‰€æœ‰å­æ–‡ä»¶
 		if (files == null) {
-			list = new ArrayList<Map<String, Object>>(2);//ĞÂ½¨Ò»¸ö³¤¶ÈÎÊ×ÓÎÄ¼şÊı×é³¤µÄlist
+			list = new ArrayList<Map<String, Object>>(2);//æ–°å»ºä¸€ä¸ªé•¿åº¦é—®å­æ–‡ä»¶æ•°ç»„é•¿çš„list
 		}
 		else {
-			list = new ArrayList<Map<String, Object>>(files.length+2);//ĞÂ½¨Ò»¸ö³¤¶ÈÎÊ×ÓÎÄ¼şÊı×é³¤µÄlist
+			list = new ArrayList<Map<String, Object>>(files.length+2);//æ–°å»ºä¸€ä¸ªé•¿åº¦é—®å­æ–‡ä»¶æ•°ç»„é•¿çš„list
 		}
 
 		/*
-		 *ÉèÖÃlistViewµÄÍ·Á½¸öÑ¡Ïî 
+		 *è®¾ç½®listViewçš„å¤´ä¸¤ä¸ªé€‰é¡¹ 
 		 *
 		 * */
-		Map<String, Object> root = new HashMap<String, Object>();//´æÈë¸ùÄ¿Â¼
+		Map<String, Object> root = new HashMap<String, Object>();//å­˜å…¥æ ¹ç›®å½•
 		root.put("name", "/");
 		root.put("img", R.drawable.file_root);
 		root.put("path", FileExplore.this.getString(R.string.to_root));
@@ -94,9 +94,9 @@ public class FileExplore extends Activity implements OnItemClickListener {
 
 		return list;
 	}
-	/*Ìø×ªµ½ÉÏÒ»²ã*/
+	/*è·³è½¬åˆ°ä¸Šä¸€å±‚*/
 	
-	private void goToParent() {//·Å»ØÉÏÒ»¼¶Ä¿Â¼
+	private void goToParent() {//æ”¾å›ä¸Šä¸€çº§ç›®å½•
 		File file = new File(path);
 		File str_pa = file.getParentFile();
 		if(str_pa == null){
@@ -109,8 +109,8 @@ public class FileExplore extends Activity implements OnItemClickListener {
 			refreshListItems(path);	
 		}
 	}
-    /*ÊµÏÖOnItemClickListener½Ó¿Ú
-     * ¸´Ğ´µã»÷ÊÂ¼şÏàÓ¦º¯Êı
+    /*å®ç°OnItemClickListeneræ¥å£
+     * å¤å†™ç‚¹å‡»äº‹ä»¶ç›¸åº”å‡½æ•°
      * */
 	@Override
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -128,7 +128,7 @@ public class FileExplore extends Activity implements OnItemClickListener {
 			else
 			{
 				Toast.makeText(FileExplore.this,path,Toast.LENGTH_SHORT).show();
-				sendPathToActivity(path);//·¢ËÍÒ»¸ö¹ã²¥¸øSelectFilesActivit
+				sendPathToActivity(path);//å‘é€ä¸€ä¸ªå¹¿æ’­ç»™SelectFilesActivit
 				finish();
 			}
 			

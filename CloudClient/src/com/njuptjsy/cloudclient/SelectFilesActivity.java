@@ -1,4 +1,4 @@
-package com.njuptjsy.cloudclient;
+ï»¿package com.njuptjsy.cloudclient;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -6,8 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -21,15 +22,16 @@ public class SelectFilesActivity extends Activity {
     private Button selectBtn,sendtocloud;
     private TextView pathView;
     private static final String DYNAMICACTION = "com.njuptjsy.cloudclient.SelectFilesActivity";
-    private OnClickListener selectListener,sendlListener;
+    private OnClickListener selectListener,sendListener;
     private String text="";
-    
+    private Handler handler;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_files);
-        //½çÃæÓĞÒ»¸ö±êÌâ£¨TextView£©ºÍÒ»¸ö°´Å¥£¨Button£©×é³É
-        text=SelectFilesActivity.this.getString(R.string.Select_file_path)+"\n";
+        //ç•Œé¢æœ‰ä¸€ä¸ªæ ‡é¢˜ï¼ˆTextViewï¼‰å’Œä¸€ä¸ªæŒ‰é’®ï¼ˆButtonï¼‰ç»„æˆ
+        text = getString(R.string.Select_file_path)+"\n";
+        initHandler();
         
         selectListener=new OnClickListener() {//define listener for select file button
 			@Override
@@ -39,12 +41,14 @@ public class SelectFilesActivity extends Activity {
 			}
 		};
 		
-		sendlListener = new OnClickListener() {
-			
+		sendListener = new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//µã»÷ÉÏ´«ÔÆ¶ËÊÂ¼ş
-				
+				//ç‚¹å‡»ä¸Šä¼ äº‘ç«¯
+				MainActivity.showProcessDialog(getString(R.string.upload_data), getString(R.string.please_wait), SelectFilesActivity.this);
+				UploadFiles uploadFiles = new UploadFiles(getFilesName(), SelectFilesActivity.this, handler);
+				Thread uploadThread = new Thread(uploadFiles);
+				uploadThread.start();
 			}
 		};
 		
@@ -52,18 +56,20 @@ public class SelectFilesActivity extends Activity {
 		selectBtn=(Button)findViewById(R.id.selectFilesBtn);
 		pathView=(TextView)findViewById(R.id.filepath);
 		selectBtn.setOnClickListener(selectListener);
+		sendtocloud.setOnClickListener(sendListener);
 		
 		IntentFilter filter_dynamic = new IntentFilter();
 		filter_dynamic.addAction(DYNAMICACTION);
-		registerReceiver(dynamicReceiver, filter_dynamic);//×¢²áÒ»¸öÓÃÓÚ½ÓÊÜDYNAMICACTION ActionµÄ¹ã²¥½ÓÊÕÆ÷
+		registerReceiver(dynamicReceiver, filter_dynamic);//æ³¨å†Œä¸€ä¸ªç”¨äºæ¥å—DYNAMICACTION Actionçš„å¹¿æ’­æ¥æ”¶å™¨
+		
     }
     
-    //×Ô¶¨Òå¶¯Ì¬¹ã²¥½ÓÊÕÆ÷ ÄÚ²¿Àà,½ÓÊÕÓÃ»§Ñ¡ÔñµÄÂ·¾¶
+    //è‡ªå®šä¹‰åŠ¨æ€å¹¿æ’­æ¥æ”¶å™¨ å†…éƒ¨ç±»,æ¥æ”¶ç”¨æˆ·é€‰æ‹©çš„è·¯å¾„
  	private BroadcastReceiver dynamicReceiver = new BroadcastReceiver() {
  		
  		@Override
  		public void onReceive(Context context, Intent intent) {
- 			Log.e("MainActivity", "½ÓÊÕ×Ô¶¨Òå¶¯Ì¬×¢²á¹ã²¥ÏûÏ¢");
+ 			Log.e("SelectFilesActivity:onReceive", "receive customize dynamic broadcast information");
  			if(intent.getAction().equals(DYNAMICACTION)){
  				String path = intent.getStringExtra("path");
  				Toast.makeText(context, path, Toast.LENGTH_SHORT).show();
@@ -81,4 +87,18 @@ public class SelectFilesActivity extends Activity {
         super.onBackPressed();
  	}
     
+ 	private String getFilesName(){
+ 		return text.replace(getString(R.string.Select_file_path)+"\n\n", "");
+ 	}
+ 	
+ 	private void initHandler(){
+ 		handler = new Handler(SelectFilesActivity.this.getMainLooper()){
+ 			@Override
+ 			public void handleMessage(Message msg){
+ 				MainActivity.progressDialog.dismiss();
+ 			}
+ 			
+ 		};
+ 		
+ 	}
 }

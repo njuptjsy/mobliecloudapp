@@ -1,50 +1,113 @@
-package com.njuptjsy.cloudclient;
+ï»¿package com.njuptjsy.cloudclient;
 
 import java.util.List;
+import java.util.jar.Attributes.Name;
 
-import com.amazonaws.AmazonWebServiceClient;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.auth.policy.actions.S3Actions;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.auth.BasicAWSCredentials;
 
+import static com.njuptjsy.cloudclient.InfoContainer.*;
 /*
- * ¼¸ÖÖ¿ÉĞĞµÄÊµÑé·½°¸ºÍÒª½â¾öµÄÎÊÌâ£º
+ * å‡ ç§å¯è¡Œçš„å®éªŒæ–¹æ¡ˆå’Œè¦è§£å†³çš„é—®é¢˜ï¼š
 
-1.ÎªÁËÊÔÑéAPPºÍÔÆ¶Ë½»»¥£¬¿ÉÒÔÔÚawsµÄÊµÀıÖĞÔÚĞÂ½¨Ò»¸öOpenStackµÄÆ½Ì¨£¬Í¨¹ıawsµÄÊµÀı»ñµÃ¹«ÍøµÄip,Í¨¹ıÕâ¸öipÓëOpenStack½»»¥¡£ÕâÑùÏàµ±ÓÚÔÚawsÔÆÆ½Ì¨ÊµÀıÖĞÔÚ´î½¨Ò»¸öÔÆÆ½Ì¨£¬ÊÇ·ñ»áÔö¼Ó¿ª·¢ÄÑ¶È£¬Ê¹ÊµÑé¹ıÓÚ¸´ÔÓ
+1.ä¸ºäº†è¯•éªŒAPPå’Œäº‘ç«¯äº¤äº’ï¼Œå¯ä»¥åœ¨awsçš„å®ä¾‹ä¸­åœ¨æ–°å»ºä¸€ä¸ªOpenStackçš„å¹³å°ï¼Œé€šè¿‡awsçš„å®ä¾‹è·å¾—å…¬ç½‘çš„ip,é€šè¿‡è¿™ä¸ªipä¸OpenStackäº¤äº’ã€‚è¿™æ ·ç›¸å½“äºåœ¨awsäº‘å¹³å°å®ä¾‹ä¸­åœ¨æ­å»ºä¸€ä¸ªäº‘å¹³å°ï¼Œæ˜¯å¦ä¼šå¢åŠ å¼€å‘éš¾åº¦ï¼Œä½¿å®éªŒè¿‡äºå¤æ‚
 
-2.Ö±½ÓÈÃÓ¦ÓÃºÍaws½øĞĞ½»»¥£¬Ê¹ÓÃawsÌá¹©ºÃµÄAPI£»awsºÍOpenStackÖ®¼äµÄÇø±ğÓĞ¶à´ó£¬ÊµÑéµÄÓĞĞ§ĞÔĞèÒª¿¼Á¿£¬Ó¢ÎÄAPI¿ª·¢ÓĞÒ»¶¨ÄÑ¶È
+2.ç›´æ¥è®©åº”ç”¨å’Œawsè¿›è¡Œäº¤äº’ï¼Œä½¿ç”¨awsæä¾›å¥½çš„APIï¼›awså’ŒOpenStackä¹‹é—´çš„åŒºåˆ«æœ‰å¤šå¤§ï¼Œå®éªŒçš„æœ‰æ•ˆæ€§éœ€è¦è€ƒé‡ï¼Œè‹±æ–‡APIå¼€å‘æœ‰ä¸€å®šéš¾åº¦
 
-3.Ê¹ÓÃ°Ù¶ÈÔÆ½øĞĞ¿ª·¢£¬APIÊÇÖĞÎÄÇÒ±È½Ï¼òµ¥£»µ«ÊÇºÍOpenStackÖ®¼äÇø±ğÓĞ¶à´ó£¬ÎŞ·¨ÊµÑé¼ÆËãĞ¶ÔØ
+3.ä½¿ç”¨ç™¾åº¦äº‘è¿›è¡Œå¼€å‘ï¼ŒAPIæ˜¯ä¸­æ–‡ä¸”æ¯”è¾ƒç®€å•ï¼›ä½†æ˜¯å’ŒOpenStackä¹‹é—´åŒºåˆ«æœ‰å¤šå¤§ï¼Œæ— æ³•å®éªŒè®¡ç®—å¸è½½
 
-4.Ê¹ÓÃÑ§Ï°´î½¨µÄOpenStackÔÆÆ½Ì¨£¬Ã»ÓĞ¹«ÍøipÎŞ·¨ÔÚĞ£ÍâÊµÑé£¬OpenStack APIÔÚgithubÓĞÒ»¸ö¿ªÔ´ÏîÄ¿£¬ÆäÕıÈ·ĞÔÓĞ´ı¿¼Ö¤
+4.ä½¿ç”¨å­¦ä¹ æ­å»ºçš„OpenStackäº‘å¹³å°ï¼Œæ²¡æœ‰å…¬ç½‘ipæ— æ³•åœ¨æ ¡å¤–å®éªŒï¼ŒOpenStack APIåœ¨githubæœ‰ä¸€ä¸ªå¼€æºé¡¹ç›®ï¼Œå…¶æ­£ç¡®æ€§æœ‰å¾…è€ƒè¯
 
  * 
  * */
-public class UserAuthen {
+public class UserAuthen implements Runnable{
 	private String username;
 	private String pwd;
-	private AmazonS3Client s3Client;
-	private BasicAWSCredentials awsCredentials;
-	public UserAuthen(String username,String pwd)
+	private AmazonS3Client s3Client = null;
+	public static CognitoCachingCredentialsProvider credentialsProvider = null;
+	private Context context = null;
+	private Handler handler;
+	
+	public UserAuthen(String username,String pwd,Context context,Handler handler)
 	{
 		this.username =username;
 		this.pwd = pwd;
-		
+		this.context = context;
+		this.handler = handler;
 	}
 
-	private boolean login()
+	public void run(){
+		String tag = "UserAuthen:run";
+		if (authenticate()) {
+			login();
+		}
+		else {
+			Log.e(tag, "cloudclient user unauthenticated");
+			sendLoginResult(MSEASSGE_TYPE.USER_UNAUTHEN);//cloudclient user unauthenticated
+			return;
+		}
+
+	}
+
+	private boolean authenticate() {
+		if (InfoContainer.USER_NAME.equalsIgnoreCase(username) && InfoContainer.PASSWORD.equalsIgnoreCase(pwd)) 
+			return true;
+		else
+			return false;
+	}
+
+	private void login()
 	{
-		if (connectInternet())
-		awsCredentials = new BasicAWSCredentials(username, pwd);//Constructs a new BasicAWSCredentials object, with the specified AWS access key and AWS secret key.		
-		s3Client = new AmazonS3Client(awsCredentials);
-		List<Bucket> bucketsList =s3Client.listBuckets();
-		
-		return false;	
+		String tag = "UserAuthen:login";
+		if (InternetUtils.connectInternet(context))
+		{			
+			if (getS3Client().doesBucketExist(BUCKET_NAME)){
+				Log.i(tag, "login success");
+				sendLoginResult(MSEASSGE_TYPE.LOGIN_SUCCESS);//login success
+			}
+			else {
+				sendLoginResult(MSEASSGE_TYPE.LOGIN_FAILED_RETRY);//login failed , please retry 
+			}
+		}
+		else {
+			sendLoginResult(MSEASSGE_TYPE.LOGIN_FAILED_NO_INTERNET);//login failed ,not Internet connect
+		}
+
 	}
 
-	private boolean connectInternet() {
-		
-		return false;
+	public static CognitoCachingCredentialsProvider getCredentialsProvider(Context context){
+			// Initialize the Amazon Cognito credentials provider
+			credentialsProvider = new CognitoCachingCredentialsProvider(
+					context, // Context
+					AWS_ACCOUNT_ID,
+					COGNITO_POOL_ID, // Identity Pool ID
+					COGNITO_ROLE_UNAUTH, // an unauthenticated role ARN
+					COGNITO_ROLE_AUTH,// an authenticated role ARN
+					Regions.US_EAST_1 // Region
+					);
+		return credentialsProvider;
+	}
+
+	private void sendLoginResult(MSEASSGE_TYPE msgType){
+		//use handler to send message to MainActivty
+		Message msg = Message.obtain();
+		msg.obj = msgType;
+		handler.sendMessage(msg);
+	}
+
+	public AmazonS3Client getS3Client() {
+		if (s3Client == null) {
+			s3Client = new AmazonS3Client(getCredentialsProvider(context));
+		}
+		return s3Client;
 	}
 
 }

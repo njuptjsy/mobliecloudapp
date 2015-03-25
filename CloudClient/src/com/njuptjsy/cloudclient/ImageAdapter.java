@@ -1,4 +1,4 @@
-package com.njuptjsy.cloudclient;
+锘縫ackage com.njuptjsy.cloudclient;
 
 import android.content.Context;
 import android.util.Log;
@@ -28,7 +28,7 @@ public class ImageAdapter extends BaseAdapter {
 		this.mGv = mGv;
 	}
 
-	int [] imageIds = //在gridview中对应的图片
+	int [] imageIds = //鍦╣ridview涓搴旂殑鍥剧墖
 		{
 			R.drawable.authen,
 			R.drawable.manage,
