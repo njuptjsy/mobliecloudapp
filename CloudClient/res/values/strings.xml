@@ -43,4 +43,9 @@
 	<string name= "login_failed_no_internet">无网络连接</string>
 	<string name= "login_now">正在登陆</string>
 	<string name= "please_wait">请稍等....</string>
+	<string name= "file_in_cloud">云端文件:</string>
+	<string name= "checking_cloud">查询云端已有文件</string>
+	<string name = "had_selected">文件已选，请勿重复选择</string>
+	<string name = "sdcard_unmounted">无法保存文件，SD卡被占用</string>
+	<string name = "download_success">下载成功，文件保存在 </string>
 </resources>

@@ -78,6 +78,7 @@ public class FileExplore extends Activity implements OnItemClickListener {
 		pmap.put("img", R.drawable.file_parent);
 		pmap.put("path", FileExplore.this.getString(R.string.to_parent));
 		list.add(pmap);
+		
 		if (files != null) {
 			for (File file : files){
 				Map<String, Object> map = new HashMap<String, Object>();

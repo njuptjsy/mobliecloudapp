@@ -31,7 +31,7 @@ import static com.njuptjsy.cloudclient.InfoContainer.*;
 public class UserAuthen implements Runnable{
 	private String username;
 	private String pwd;
-	private AmazonS3Client s3Client = null;
+	private static AmazonS3Client s3Client = null;
 	public static CognitoCachingCredentialsProvider credentialsProvider = null;
 	private Context context = null;
 	private Handler handler;
@@ -51,7 +51,7 @@ public class UserAuthen implements Runnable{
 		}
 		else {
 			Log.e(tag, "cloudclient user unauthenticated");
-			sendLoginResult(MSEASSGE_TYPE.USER_UNAUTHEN);//cloudclient user unauthenticated
+			sendLoginResult(MESSAGE_TYPE.USER_UNAUTHEN);//cloudclient user unauthenticated
 			return;
 		}
 
@@ -69,16 +69,16 @@ public class UserAuthen implements Runnable{
 		String tag = "UserAuthen:login";
 		if (InternetUtils.connectInternet(context))
 		{			
-			if (getS3Client().doesBucketExist(BUCKET_NAME)){
+			if (getS3Client(getCredentialsProvider(context)).doesBucketExist(BUCKET_NAME)){
 				Log.i(tag, "login success");
-				sendLoginResult(MSEASSGE_TYPE.LOGIN_SUCCESS);//login success
+				sendLoginResult(MESSAGE_TYPE.LOGIN_SUCCESS);//login success
 			}
 			else {
-				sendLoginResult(MSEASSGE_TYPE.LOGIN_FAILED_RETRY);//login failed , please retry 
+				sendLoginResult(MESSAGE_TYPE.LOGIN_FAILED_RETRY);//login failed , please retry 
 			}
 		}
 		else {
-			sendLoginResult(MSEASSGE_TYPE.LOGIN_FAILED_NO_INTERNET);//login failed ,not Internet connect
+			sendLoginResult(MESSAGE_TYPE.LOGIN_FAILED_NO_INTERNET);//login failed ,not Internet connect
 		}
 
 	}
@@ -96,16 +96,16 @@ public class UserAuthen implements Runnable{
 		return credentialsProvider;
 	}
 
-	private void sendLoginResult(MSEASSGE_TYPE msgType){
+	private void sendLoginResult(MESSAGE_TYPE msgType){
 		//use handler to send message to MainActivty
 		Message msg = Message.obtain();
 		msg.obj = msgType;
 		handler.sendMessage(msg);
 	}
 
-	public AmazonS3Client getS3Client() {
+	public static AmazonS3Client getS3Client(CognitoCachingCredentialsProvider cachingCredentialsProvider) {
 		if (s3Client == null) {
-			s3Client = new AmazonS3Client(getCredentialsProvider(context));
+			s3Client = new AmazonS3Client(cachingCredentialsProvider);
 		}
 		return s3Client;
 	}

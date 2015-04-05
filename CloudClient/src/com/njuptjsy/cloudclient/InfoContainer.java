@@ -10,11 +10,14 @@ public class InfoContainer {
 	public static final String USER_NAME = "admin";
 	public static final String PASSWORD = "admin";
 	
-	public static enum MSEASSGE_TYPE{
+	public static enum MESSAGE_TYPE{
 		USER_UNAUTHEN,
 		LOGIN_SUCCESS,
 		LOGIN_FAILED_RETRY,
 		LOGIN_FAILED_NO_INTERNET,
-		UPLOAD_SUCCESS
-	};
+		UPLOAD_SUCCESS,
+		QUERY_RESULT,
+		SDCARD_UNMOUNTED,
+		DOWNLOAD_SUCCESS
+	}
 }

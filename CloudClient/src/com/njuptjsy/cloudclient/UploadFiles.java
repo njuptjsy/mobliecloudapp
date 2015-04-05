@@ -29,11 +29,11 @@ public class UploadFiles implements Runnable{
 	
 	public void run(){
 		Looper.prepare();
-		uploadFile(getFiles(filesName));
-		sendUploadResult(MSEASSGE_TYPE.UPLOAD_SUCCESS);
+		upload(getFiles(filesName));
+		sendUploadResult(MESSAGE_TYPE.UPLOAD_SUCCESS);
 	}
 	
-	private void sendUploadResult(MSEASSGE_TYPE msgType) {
+	private void sendUploadResult(MESSAGE_TYPE msgType) {
 		Message msg = Message.obtain();
 		msg.obj = msgType;
 		handler.sendMessage(msg);
@@ -60,7 +60,7 @@ public class UploadFiles implements Runnable{
 	}
 	
 	
-	private void uploadFile(File[] files) {
+	private void upload(File[] files) {
 		for(File file:files)
 		{
 			if (file.exists()) {

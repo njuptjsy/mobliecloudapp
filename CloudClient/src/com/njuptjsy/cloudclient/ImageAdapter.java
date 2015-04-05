@@ -53,45 +53,42 @@ public class ImageAdapter extends BaseAdapter {
 //			R.string.about_thinkbox
 //			
 //		};
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {//创建并填充要显示的视图
 
-	public View getView(int position, View convertView, ViewGroup parent) {
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View itemView;
 
-		View gridView;
+		if (convertView == null) {//如果是第一场更新，则填充一个新视图
 
-		if (convertView == null) {
-
-			gridView = new View(context);
+			itemView = new View(context);
 
 			// get layout from mobile.xml
-			gridView = inflater.inflate(R.layout.block, null);
+			itemView = inflater.inflate(R.layout.block, null);
 
 			// set value into textview
-			TextView textView = (TextView) gridView
+			TextView textView = (TextView) itemView
 					.findViewById(R.id.grid_item_label);
 			textView.setText(mobileValues[position]);
 
 			// set image based on selected text
-			ImageView imageView = (ImageView) gridView
+			ImageView imageView = (ImageView) itemView
 					.findViewById(R.id.grid_item_image);
-
-			String mobile = mobileValues[position];
-
 			imageView.setImageResource(imageIds[position]);
+			
 			Log.v("ImageAdapter", "convertView is null");
-		} else {
-			gridView = (View) convertView;
+		} else {//如果不是第一次更新，则更新现有视图
+			itemView = (View) convertView;
 			Log.v("ImageAdapter", "convertView is not null");
 		}
 
 		AbsListView.LayoutParams param = new AbsListView.LayoutParams(
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
 				mGv.getHeight()/ROW_NUMBER);
-		gridView.setLayoutParams(param);
+		itemView.setLayoutParams(param);
 
-		return gridView;
+		return itemView;
 	}
 
 	@Override
