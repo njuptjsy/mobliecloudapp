@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.auth.policy.actions.S3Actions;
@@ -35,7 +36,7 @@ public class UserAuthen implements Runnable{
 	public static CognitoCachingCredentialsProvider credentialsProvider = null;
 	private Context context = null;
 	private Handler handler;
-	
+	public static boolean isLogin = false;
 	public UserAuthen(String username,String pwd,Context context,Handler handler)
 	{
 		this.username =username;
@@ -46,12 +47,13 @@ public class UserAuthen implements Runnable{
 
 	public void run(){
 		String tag = "UserAuthen:run";
-		if (authenticate()) {
+		isLogin = authenticate();
+		if (isLogin) {
 			login();
 		}
 		else {
 			Log.e(tag, "cloudclient user unauthenticated");
-			sendLoginResult(MESSAGE_TYPE.USER_UNAUTHEN);//cloudclient user unauthenticated
+			sendLoginResult(MESSAGE_TYPE.USER_UNAUTHEN_FAIL);//cloudclient user unauthenticated.this information will make a toast in main UI
 			return;
 		}
 
@@ -67,9 +69,16 @@ public class UserAuthen implements Runnable{
 	private void login()
 	{
 		String tag = "UserAuthen:login";
+		boolean reponse = false;
 		if (InternetUtils.connectInternet(context))
-		{			
-			if (getS3Client(getCredentialsProvider(context)).doesBucketExist(BUCKET_NAME)){
+		{	
+			try {
+				reponse =  getS3Client(getCredentialsProvider(context)).doesBucketExist(BUCKET_NAME);
+			} catch (Exception e) {//HTTP connect fail more than 3 times
+				reponse = false;
+			}
+
+			if (reponse){
 				Log.i(tag, "login success");
 				sendLoginResult(MESSAGE_TYPE.LOGIN_SUCCESS);//login success
 			}

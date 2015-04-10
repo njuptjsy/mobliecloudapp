@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.security.auth.PrivateCredentialPermission;
 
+import com.njuptjsy.cloudclient.MyAdapter.ViewHolder;
 import com.njuptjsy.cloudclient.InfoContainer.*;
 
 import android.support.v7.app.ActionBarActivity;
@@ -37,13 +38,7 @@ import android.webkit.WebSettings.RenderPriority;
 import android.webkit.WebView;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebViewClient;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.GridView;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class MainActivity extends ActionBarActivity {
@@ -99,6 +94,11 @@ public class MainActivity extends ActionBarActivity {
 		download.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (selectedFlies.isEmpty()) {
+					Toast.makeText(MainActivity.this, getString(R.string.please_select), Toast.LENGTH_LONG).show();
+					return;
+				}
+				fileSelectedByCheckbox();
 				//start download files thread
 				showProcessDialog(getString(R.string.download_data),getString(R.string.please_wait),MainActivity.this);
 				DownLoadFiles downLoadFiles = new DownLoadFiles(selectedFlies,MainActivity.this,mainHandler);
@@ -216,6 +216,10 @@ public class MainActivity extends ActionBarActivity {
 			 *2.new thread to find file information from cloud
 			 *3.use file information fill in ExpandableListView
 			 * */
+			if (!UserAuthen.isLogin) {
+				Toast.makeText(MainActivity.this,getString(R.string.please_login), Toast.LENGTH_LONG).show();
+				return;
+			}
 			fileToDownload.setText(R.string.file_in_cloud);
 			setActiveView(enumView.vdownload);
 			showProcessDialog(getString(R.string.checking_cloud), getString(R.string.please_wait), MainActivity.this);
@@ -391,11 +395,12 @@ public class MainActivity extends ActionBarActivity {
 				String tag = "MainActivty:initHandler";
 				progressDialog.dismiss();
 				switch ((MESSAGE_TYPE)msg.obj) {
-				case USER_UNAUTHEN:
-					Toast.makeText(MainActivity.this, getString(R.string.user_unauthen), Toast.LENGTH_LONG).show();
+				case USER_UNAUTHEN_FAIL:
+					Toast.makeText(MainActivity.this, getString(R.string.user_unauthen_fail), Toast.LENGTH_LONG).show();
 					break;
 				case LOGIN_SUCCESS:
 					Toast.makeText(MainActivity.this, getString(R.string.login_success), Toast.LENGTH_LONG).show();
+					setActiveView(enumView.vgirdAct);
 					break;
 				case LOGIN_FAILED_RETRY:
 					Toast.makeText(MainActivity.this, getString(R.string.login_failed_retry), Toast.LENGTH_LONG).show();
@@ -426,8 +431,6 @@ public class MainActivity extends ActionBarActivity {
 				//queryResult：String in map means bucket name , String in list of map means Object key in this bucket
 				//Map<MESSAGE_TYPE, Map<String, List<String>>>
 				refactorQueryResult(queryResult);
-				
-				
 			}
 		};
 	}
@@ -446,7 +449,7 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	private void startQueryCloud(){
-		QueryCloud queryCloud = new QueryCloud(MainActivity.this,messageHandler);
+		QueryCloud queryCloud = new QueryCloud(MainActivity.this,messageHandler,mainHandler);
 		Thread queryThread = new Thread(queryCloud);
 		queryThread.start();
 	}
@@ -475,7 +478,7 @@ public class MainActivity extends ActionBarActivity {
 				Map<String, Object> fileListItem = new HashMap<String,Object>();
 				fileListItem.put("name", itemIterator.next().toString());
 				fileListItem.put("path", "/"+bucketName);
-				fileListItem.put("img",R.drawable.file_doc );
+				fileListItem.put("img",R.drawable.file_doc);
 				filesList.add(fileListItem);
 			}
 		}
@@ -495,6 +498,11 @@ public class MainActivity extends ActionBarActivity {
 				String bucketName,fileKey;
 				bucketName = displayList.get(position).get("path").toString().replace("/", "");
 				fileKey = displayList.get(position).get("name").toString();
+				
+				ViewHolder viewHolder = (ViewHolder)view.getTag();
+				viewHolder.cBox.toggle();//Change the checked state of the view to the inverse of its current state
+				MyAdapter.isSelected.put(position, viewHolder.cBox.isChecked());
+				
 				showSelectedFile(fileKey);
 				recordSelectedFiles(bucketName,fileKey);
 			}
@@ -516,28 +524,45 @@ public class MainActivity extends ActionBarActivity {
 		return fileListInBucket;
 	}
 	
-	private void recordSelectedFiles(String bucketName,String fileKey){
-		Map<String, Object> fileAttribute = new HashMap<String, Object>();
-		fileAttribute.put("bucketName", bucketName);
-		fileAttribute.put("fileKey", fileKey);
-		selectedFlies.add(fileAttribute);
-	}
-	
 	private void buildDownlaodListView(ListView listView){
-		adapterForFileList = new SimpleAdapter(this, displayList, R.layout.file_row,
-				new String[] { "name", "path" ,"img"}, new int[] { R.id.name,
-						R.id.desc ,R.id.img});//构建listView
+//		adapterForFileList = new SimpleAdapter(this, displayList, R.layout.file_row,
+//				new String[] { "name", "path" ,"img"}, new int[] { R.id.name,
+//						R.id.desc ,R.id.img});//构建listView
+		adapterForFileList = new MyAdapter(this, displayList, R.layout.file_item, new String[]{"img","name","path"}, new int[]{R.id.imageOfFile,R.id.fileName,R.id.filePath,R.id.fileCheckBox});
 		listView.setAdapter(adapterForFileList);
 		listView.setSelection(0);
 		listView.setOnItemClickListener(new ListViewListener());
 	}
-
+	
+	private void recordSelectedFiles(String bucketName,String fileKey){
+		Map<String, Object> fileAttribute = new HashMap<String, Object>();
+		fileAttribute.put("bucketName", bucketName);
+		fileAttribute.put("fileKey", fileKey);
+		if (selectedFlies.contains(fileAttribute)) {
+			selectedFlies.remove(fileAttribute);
+		}
+		selectedFlies.add(fileAttribute);
+	}
+	
 	private void showSelectedFile(String fileKey){
 		if (selectedFile.contains(fileKey)) {
-			Toast.makeText(this, getString(R.string.had_selected), Toast.LENGTH_SHORT).show();
-			return;
+			//Toast.makeText(this, getString(R.string.had_selected), Toast.LENGTH_SHORT).show();
+			selectedFile = selectedFile.replace(fileKey + System.getProperty("line.separator"), "");
 		}
-		selectedFile = selectedFile + fileKey + System.getProperty("line.separator");
+		else {
+			selectedFile = selectedFile + fileKey + System.getProperty("line.separator");
+		}
 		fileToDownload.setText(selectedFile);
+	}
+
+	private void fileSelectedByCheckbox(){
+		for(int i=0;i<fileList.getCount();i++){    
+			if(MyAdapter.isSelected.get(i)){
+				String bucketName = displayList.get(i).get("path").toString().replace("/", "");
+				String fileKey = displayList.get(i).get("name").toString();
+				showSelectedFile(fileKey);
+				recordSelectedFiles(bucketName,fileKey);
+			}
+		}
 	}
 }

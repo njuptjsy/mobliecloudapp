@@ -11,7 +11,7 @@ public class InfoContainer {
 	public static final String PASSWORD = "admin";
 	
 	public static enum MESSAGE_TYPE{
-		USER_UNAUTHEN,
+		USER_UNAUTHEN_FAIL,
 		LOGIN_SUCCESS,
 		LOGIN_FAILED_RETRY,
 		LOGIN_FAILED_NO_INTERNET,

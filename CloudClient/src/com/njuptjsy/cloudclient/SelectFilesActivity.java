@@ -44,6 +44,10 @@ public class SelectFilesActivity extends Activity {
 		sendListener = new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (!UserAuthen.isLogin) {
+					Toast.makeText(SelectFilesActivity.this, SelectFilesActivity.this.getString(R.string.please_login), Toast.LENGTH_LONG).show();
+					return;
+				}
 				//点击上传云端
 				MainActivity.showProcessDialog(getString(R.string.upload_data), getString(R.string.please_wait), SelectFilesActivity.this);
 				UploadFiles uploadFiles = new UploadFiles(getFilesName(), SelectFilesActivity.this, handler);
