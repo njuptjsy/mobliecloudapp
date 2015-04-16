@@ -37,6 +37,7 @@ public class UserAuthen implements Runnable{
 	private Context context = null;
 	private Handler handler;
 	public static boolean isLogin = false;
+	public static boolean userAuthenIsRunning = false;
 	public UserAuthen(String username,String pwd,Context context,Handler handler)
 	{
 		this.username =username;
@@ -46,17 +47,20 @@ public class UserAuthen implements Runnable{
 	}
 
 	public void run(){
+		userAuthenIsRunning = true;
 		String tag = "UserAuthen:run";
 		isLogin = authenticate();
 		if (isLogin) {
 			login();
+			userAuthenIsRunning = false;
 		}
 		else {
 			Log.e(tag, "cloudclient user unauthenticated");
 			sendLoginResult(MESSAGE_TYPE.USER_UNAUTHEN_FAIL);//cloudclient user unauthenticated.this information will make a toast in main UI
+			userAuthenIsRunning = false;
 			return;
 		}
-
+		
 	}
 
 	private boolean authenticate() {

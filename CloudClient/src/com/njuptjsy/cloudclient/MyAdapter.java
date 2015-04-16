@@ -91,7 +91,7 @@ public class MyAdapter extends SimpleAdapter{
 		}    
 		holder.img.setImageResource((int)data.get(position).get(from[0])); 
 		holder.name.setText(data.get(position).get(from[1]).toString());
-		holder.desc.setTag(data.get(position).get(from[2]).toString());
+		holder.desc.setText(data.get(position).get(from[2]).toString());
 		//holder.cBox.setChecked(true);    
 		return convertView;    
 	}    
