@@ -18,7 +18,7 @@ import android.widget.SimpleAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class FileExplore extends Activity implements OnItemClickListener {
+public class FileExplore extends BaseActivity implements OnItemClickListener {
 	private static final String TAG = "FileExplore";
 	private static final int IM_PARENT = Menu.FIRST + 1;
 	private static final int IM_BACK = IM_PARENT + 1;

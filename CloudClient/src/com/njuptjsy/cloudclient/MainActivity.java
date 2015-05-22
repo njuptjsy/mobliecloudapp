@@ -49,8 +49,8 @@ import android.widget.AdapterView.OnItemClickListener;
 /**
  * the main activity of CloudClient application
  * */
-public class MainActivity extends Activity {
-	private String [] MainItem;  
+public class MainActivity extends BaseActivity {
+	private String [] mainItem;  
 	public enum enumView{vauthen,vgirdAct,vhelp,vabout,vemail,vresource,vdownload};//for use switch case in setActiveView function 
 	private View authenView,helpView,aboutView,EmailView,resourceView,gridAct,currentView,downloadView;
 	private long firstTime;
@@ -68,12 +68,13 @@ public class MainActivity extends Activity {
 	private SharedPreferences pref;
 	private SharedPreferences.Editor editor;
 	private DatabaseHelper dbhHelper;
-	private Boolean needQuery; 
+	private Boolean needQuery;
+	private DeviceInfo deviceInfo;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		MainItem = new String [] {getString(R.string.authentication),getString(R.string.res_manage),
+		
+		mainItem = new String [] {getString(R.string.authentication),getString(R.string.res_manage),
 				getString(R.string.upload_data),getString(R.string.download_data),getString(R.string.show_data),
 				getString(R.string.send_mail),getString(R.string.user_guide),getString(R.string.about_cloudclient)};
 		displayList =new ArrayList<Map<String,Object>>();
@@ -89,7 +90,7 @@ public class MainActivity extends Activity {
 		resourceView = getLayoutInflater().inflate(R.layout.resourcemanage, null);
 		downloadView = getLayoutInflater().inflate(R.layout.download_file, null);
 
-		
+		registerBatteryReceiver();
 		initHandler();
 		initgridAct();
 		initAuthen();
@@ -98,6 +99,7 @@ public class MainActivity extends Activity {
 		initDownloadView();		
 		setActiveView(enumView.vgirdAct);//切换目前的显示界面
 		needQuery = true;
+		getSystemInfo();
 	}
 
 	@Override
@@ -127,6 +129,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		//在活动被销毁之前调用
+		unregisterBatteryReceiver();
 		super.onDestroy();
 	}
 	
@@ -245,13 +248,13 @@ public class MainActivity extends Activity {
 		isRemeberUserInfo();
 	}
 
-	public void initgridAct()
+	private void initgridAct()
 	{
 		GridView gridView;
 
 		gridView = (GridView) gridAct.findViewById(R.id.gridView1);
 
-		gridView.setAdapter(new ImageAdapter(this, MainItem, gridView));
+		gridView.setAdapter(new ImageAdapter(this, mainItem, gridView));
 
 		gridView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -707,4 +710,38 @@ public class MainActivity extends Activity {
 		}
 		
 	}
+
+	private void getSystemInfo(){
+		
+		Map<String, Integer> battery = deviceInfo.getBatteryLevel();
+		
+		try {
+			deviceInfo.CpuUsage();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Map<String, Integer> cpuUsage = deviceInfo.getCpuUsage();
+		
+		deviceInfo.SDCardSize();
+		deviceInfo.internalStorageSize();
+		Map<String, Long> storageInfo = deviceInfo.getStorageInfo();
+		
+		deviceInfo.memoryInfo();
+		Map<String, Long> memoryInfo = deviceInfo.getMemoryInfo();
+		Log.i("MainActivity:getSystemInfo", "battery level: " + battery + "\n"
+				+ "CPU: " + cpuUsage + "\n"
+				+ "Storage: "+ storageInfo + "\n"
+				+ "Memory: "+ memoryInfo + "\n");
+	}
+
+	private void registerBatteryReceiver(){
+		deviceInfo = new DeviceInfo();
+		deviceInfo.batteryLevel();
+	}
+	
+	private void unregisterBatteryReceiver() {
+		deviceInfo.unregisterBatteryReceiver();
+	} 
+	
 }

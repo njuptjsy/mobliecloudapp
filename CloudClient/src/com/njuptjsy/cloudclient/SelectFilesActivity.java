@@ -18,7 +18,7 @@ import android.widget.Toast;
  * file explore in upload data 
  * 
  * */
-public class SelectFilesActivity extends Activity {
+public class SelectFilesActivity extends BaseActivity {
     private Button selectBtn,sendtocloud;
     private TextView pathView;
     private static final String DYNAMICACTION = "com.njuptjsy.cloudclient.SelectFilesActivity";
