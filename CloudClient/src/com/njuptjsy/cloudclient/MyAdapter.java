@@ -39,16 +39,7 @@ public class MyAdapter extends SimpleAdapter{
 		init();    
 	}    
 
-	//初始化    
 	private void init() {    
-//		data=new ArrayList<Map<String, Object>>();    
-//		for (int i = 0; i < 5; i++) {    
-//			Map<String, Object> map = new HashMap<String, Object>();    
-//			map.put("img", R.drawable.icon);    
-//			map.put("title", "第" + (i + 1) + "行的标题");    
-//			data.add(map);    
-//		}    
-		//这儿定义isSelected这个map是记录每个listitem的状态，初始状态全部为false。    
 		isSelected = new HashMap<Integer, Boolean>();    
 		for (int i = 0; i < data.size(); i++) {    
 			isSelected.put(i, false);    
@@ -77,7 +68,7 @@ public class MyAdapter extends SimpleAdapter{
 	public View getView(int position, View convertView, ViewGroup parent) {
 		//super.getView(position, convertView, parent);
 		ViewHolder holder = null;    
-		//convertView为null的时候初始化convertView。    
+		//convertView涓簄ull鐨勬椂鍊欏垵濮嬪寲convertView銆�   
 		if (convertView == null) {    
 			holder = new ViewHolder();    
 			convertView = mInflater.inflate(viewResourceId, null);    
