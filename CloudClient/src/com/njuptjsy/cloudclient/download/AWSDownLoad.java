@@ -1,4 +1,4 @@
-package com.njuptjsy.cloudclient;
+package com.njuptjsy.cloudclient.download;
 
 import java.io.File;
 import java.util.Iterator;
@@ -9,11 +9,14 @@ import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+
 import com.amazonaws.mobileconnectors.s3.transfermanager.Download;
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
-import com.njuptjsy.cloudclient.InfoContainer.MESSAGE_TYPE;
+import com.njuptjsy.cloudclient.authen.AWSAuthen;
+import com.njuptjsy.cloudclient.utils.InfoContainer;
+import com.njuptjsy.cloudclient.utils.InfoContainer.MESSAGE_TYPE;
 
-public class AWSDownLoad implements com.njuptjsy.cloudclient.Download{
+public class AWSDownLoad implements com.njuptjsy.cloudclient.download.Download{
 	private List<Map<String, Object>> fileToDownload;
 	private TransferManager transferManager = null;
 	private Context context;
@@ -46,7 +49,7 @@ public class AWSDownLoad implements com.njuptjsy.cloudclient.Download{
 
 	private TransferManager getTransferManager(){
 		if (transferManager == null)
-			transferManager = new TransferManager(UserAuthen.getCredentialsProvider(context));
+			transferManager = new TransferManager(AWSAuthen.getCredentialsProvider(context));
 		return transferManager;
 	}
 	

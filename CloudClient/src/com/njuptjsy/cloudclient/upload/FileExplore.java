@@ -1,10 +1,17 @@
-﻿package com.njuptjsy.cloudclient;
+﻿package com.njuptjsy.cloudclient.upload;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.njuptjsy.cloudclient.BaseActivity;
+import com.njuptjsy.cloudclient.R;
+import com.njuptjsy.cloudclient.R.drawable;
+import com.njuptjsy.cloudclient.R.id;
+import com.njuptjsy.cloudclient.R.layout;
+import com.njuptjsy.cloudclient.R.string;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -1,21 +1,19 @@
-﻿package com.njuptjsy.cloudclient;
-
-import java.util.List;
-import java.util.jar.Attributes.Name;
+﻿package com.njuptjsy.cloudclient.authen;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.auth.policy.actions.S3Actions;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.Bucket;
+import com.njuptjsy.cloudclient.utils.ClientUtils;
+import com.njuptjsy.cloudclient.utils.InfoContainer;
+import com.njuptjsy.cloudclient.utils.InfoContainer.MESSAGE_TYPE;
 
-import static com.njuptjsy.cloudclient.InfoContainer.*;
+import static com.njuptjsy.cloudclient.utils.ClientUtils.*;
+import static com.njuptjsy.cloudclient.utils.InfoContainer.*;
 /*
  * 几种可行的实验方案和要解决的问题：
 
@@ -29,16 +27,16 @@ import static com.njuptjsy.cloudclient.InfoContainer.*;
 
  * 
  * */
-public class UserAuthen implements Runnable{
+public class AWSAuthen implements UserAuthen{
 	private String username;
 	private String pwd;
 	private static AmazonS3Client s3Client = null;
 	public static CognitoCachingCredentialsProvider credentialsProvider = null;
 	private Context context = null;
 	private Handler handler;
-	public static boolean isLegal = false;
-	public static boolean userAuthenIsRunning = false;
-	public UserAuthen(String username,String pwd,Context context,Handler handler)
+	
+	//public static boolean userAuthenIsRunning = false;
+	public AWSAuthen(String username,String pwd,Context context,Handler handler)
 	{
 		this.username =username;
 		this.pwd = pwd;
@@ -47,37 +45,31 @@ public class UserAuthen implements Runnable{
 	}
 
 	public void run(){
-		userAuthenIsRunning = true;
+		InfoContainer.userAuthenIsRunning = true;
 		String tag = "UserAuthen:run";
-		isLegal = authenticate();
-		if (isLegal) {
+		InfoContainer.USERISLEGAL = authenticate(username,pwd,InfoContainer.CLOUD.AWS);
+		if (InfoContainer.USERISLEGAL) {
 			login();
-			userAuthenIsRunning = false;
+			InfoContainer.userAuthenIsRunning = false;
 		}
 		else {
 			Log.e(tag, "cloudclient user unauthenticated");
 			sendLoginResult(MESSAGE_TYPE.USER_UNAUTHEN_FAIL);//cloudclient user unauthenticated.this information will make a toast in main UI
-			userAuthenIsRunning = false;
+			InfoContainer.userAuthenIsRunning = false;
 			return;
 		}
 		
 	}
 
-	private boolean authenticate() {
-		if (InfoContainer.USER_NAME.equalsIgnoreCase(username) && InfoContainer.PASSWORD.equalsIgnoreCase(pwd)) 
-			return true;
-		else
-			return false;
-	}
-
-	private void login()
+	@Override
+	public void login()
 	{
 		String tag = "UserAuthen:login";
 		boolean reponse = false;
 		if (ClientUtils.connectInternet(context))
 		{	
 			try {
-				reponse =  getS3Client(getCredentialsProvider(context)).doesBucketExist(BUCKET_NAME);
+				reponse =  getS3Client(getCredentialsProvider(context)).doesBucketExist(AWS_BUCKET_NAME);
 			} catch (Exception e) {//HTTP connect fail more than 3 times
 				reponse = false;
 			}
@@ -109,7 +101,8 @@ public class UserAuthen implements Runnable{
 		return credentialsProvider;
 	}
 
-	private void sendLoginResult(MESSAGE_TYPE msgType){
+	@Override
+	public void sendLoginResult(MESSAGE_TYPE msgType){
 		//use handler to send message to MainActivty
 		Message msg = Message.obtain();
 		msg.obj = msgType;

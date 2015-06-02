@@ -1,22 +1,23 @@
-package com.njuptjsy.cloudclient;
+package com.njuptjsy.cloudclient.upload;
 
 import java.io.File;
 
 import android.content.Context;
 import android.os.Handler;
 
-import com.njuptjsy.cloudclient.InfoContainer.MESSAGE_TYPE;
+import com.njuptjsy.cloudclient.utils.InfoContainer.MESSAGE_TYPE;
 
-public class AliyunUpload implements Upload{
+public class OpenStackUpload implements Upload{
 	private Handler handler;
 	private Context context;
 	private String fileNames;
 	
-	public AliyunUpload(String fileNames,Context context,Handler handler){
+	public OpenStackUpload(String fileNames,Context context,Handler handler){
 		this.context = context;
 		this.fileNames = fileNames;
 		this.handler = handler;
 	}
+	
 	
 	@Override
 	public void run() {

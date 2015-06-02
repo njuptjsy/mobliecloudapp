@@ -1,7 +1,7 @@
-package com.njuptjsy.cloudclient;
+package com.njuptjsy.cloudclient.utils;
 
 import java.io.File;
-
+//import static com.njuptjsy.cloudclient.utils.InfoContainer.*;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -33,6 +33,13 @@ public class ClientUtils {
 		}
 		Log.i(tag, "total upload files num is "+i);
 		return files;
+	}
+	
+	public static boolean authenticate(String username,String pwd,InfoContainer.CLOUD cloudType) {//这里第三个参数表示云的类型，可以根据不同的云验证不同的账号和密码，目前此功能没有开发
+		if (InfoContainer.USER_NAME.equalsIgnoreCase(username) && InfoContainer.PASSWORD.equalsIgnoreCase(pwd)) 
+			return true;
+		else
+			return false;
 	}
 	
 	//可以将一些常用的语句包装成一个函数，减少输入字符数，如toast

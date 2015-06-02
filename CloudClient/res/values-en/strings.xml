@@ -52,11 +52,13 @@
 	<string name = "please_select">请选择要下载的文件</string>
 	<string name = "remember_pwd">记住密码</string>
 	<string name = "remember_user">记住账号</string>
-	<string name = "upload_success">上传成功</string>	
+	<string name = "upload_success">上传成功</string>
+		<string name = "nofileselected">请选择要上传的文件</string>	
 	<string name = "selectcloud">选择云平台</string>
 	<string name = "aliyun">Aliyun</string>
 	<string name = "aws">AWS</string>
 	<string name = "openstack">OpenStack</string>
 	<string name = "sure">确定</string>
 	<string name = "logtocloud">已登录云平台：</string>
+	<string name = "loginnow">正在进行登录操作</string>
 </resources>

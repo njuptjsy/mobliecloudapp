@@ -13,7 +13,16 @@ import javax.security.auth.PrivateCredentialPermission;
 
 import com.amazonaws.services.s3.model.Bucket;
 import com.njuptjsy.cloudclient.MyAdapter.ViewHolder;
-import com.njuptjsy.cloudclient.InfoContainer.*;
+import com.njuptjsy.cloudclient.authen.AWSAuthen;
+import com.njuptjsy.cloudclient.authen.AliyunAuthen;
+import com.njuptjsy.cloudclient.authen.UserAuthen;
+import com.njuptjsy.cloudclient.download.AWSDownLoad;
+import com.njuptjsy.cloudclient.query.DeviceInfo;
+import com.njuptjsy.cloudclient.query.QueryAWS;
+import com.njuptjsy.cloudclient.upload.SelectFilesActivity;
+import com.njuptjsy.cloudclient.utils.InfoContainer;
+import com.njuptjsy.cloudclient.utils.LogUtil;
+import com.njuptjsy.cloudclient.utils.InfoContainer.*;
 
 import android.support.v7.app.ActionBarActivity;
 import android.R.integer;
@@ -238,15 +247,32 @@ public class MainActivity extends BaseActivity {
 		login.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.i(tag, "login button is clicked");
+				LogUtil.i(tag, "login button is clicked");
+				if (InfoContainer.userAuthenIsRunning) {
+					LogUtil.i(tag, "Authen thread is running");
+					Toast.makeText(MainActivity.this,getString(R.string.loginnow), Toast.LENGTH_LONG).show();
+					return;
+				}
+
 				showProcessDialog(getString(R.string.login_now),getString(R.string.please_wait),MainActivity.this);
 				String name = username.getText().toString();//get the input string in login TextView
 				String pwd =password.getText().toString();
 				SaveUserInfo(name,pwd);
-				if (UserAuthen.userAuthenIsRunning) {
-					return;
+				UserAuthen authen = null;
+				switch (selectedCloud) {
+				case 0:
+					authen = new AliyunAuthen(name, pwd,MainActivity.this,mainHandler);
+					break;
+				case 1:
+					authen = new AWSAuthen(name, pwd,MainActivity.this,mainHandler);
+					break;
+				case 2:
+
+					break;
+				default:
+					break;
 				}
-				UserAuthen authen = new UserAuthen(name, pwd,MainActivity.this,mainHandler);
+				
 				Thread authenThread = new Thread(authen);
 				authenThread.start();
 			}
@@ -284,6 +310,7 @@ public class MainActivity extends BaseActivity {
 		});
 	}
 
+	//响应gridview的按钮被点击
 	private void onGridItemClicked (AdapterView<?> parent, View v, int position, long id)
 	{
 		Intent intent;
@@ -524,6 +551,7 @@ public class MainActivity extends BaseActivity {
 					Toast.makeText(MainActivity.this, getString(R.string.download_success) + path, Toast.LENGTH_LONG).show();
 					break;
 				case UPLOAD_SUCCESS:
+					setActiveView(enumView.vgirdAct);
 					Toast.makeText(MainActivity.this, getString(R.string.upload_success), Toast.LENGTH_LONG).show();
 					needQuery = true;
 					break;

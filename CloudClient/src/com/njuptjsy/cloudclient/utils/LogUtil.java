@@ -1,4 +1,4 @@
-package com.njuptjsy.cloudclient;
+package com.njuptjsy.cloudclient.utils;
 import android.util.Log;
 
 public class LogUtil {

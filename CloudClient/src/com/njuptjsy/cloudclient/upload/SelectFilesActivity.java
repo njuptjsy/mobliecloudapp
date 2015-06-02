@@ -1,4 +1,12 @@
-﻿package com.njuptjsy.cloudclient;
+﻿package com.njuptjsy.cloudclient.upload;
+
+import com.njuptjsy.cloudclient.BaseActivity;
+import com.njuptjsy.cloudclient.MainActivity;
+import com.njuptjsy.cloudclient.R;
+import com.njuptjsy.cloudclient.R.id;
+import com.njuptjsy.cloudclient.R.layout;
+import com.njuptjsy.cloudclient.R.string;
+import com.njuptjsy.cloudclient.utils.LogUtil;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -54,6 +62,7 @@ public class SelectFilesActivity extends BaseActivity {
 				switch (MainActivity.selectedCloud) {
 				case 0:
 					//cloudName = getString(R.string.aliyun);
+					LogUtil.d("SelectFilesActivity:sendListener", "in case 0 aliyun ");
 					uploadFiles = new AliyunUpload(getFilesName(), SelectFilesActivity.this, handler);
 					break;
 				case 1:

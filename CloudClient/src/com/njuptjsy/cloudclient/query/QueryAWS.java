@@ -1,4 +1,4 @@
-package com.njuptjsy.cloudclient;
+package com.njuptjsy.cloudclient.query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,8 +9,10 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.njuptjsy.cloudclient.authen.AWSAuthen;
+import com.njuptjsy.cloudclient.utils.InfoContainer;
 
-import static com.njuptjsy.cloudclient.InfoContainer.*;
+import static com.njuptjsy.cloudclient.utils.InfoContainer.*;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -67,7 +69,7 @@ public class QueryAWS  implements QueryCloud{
 	}
 
 	private AmazonS3Client getAmazonS3Client(){
-		return UserAuthen.getS3Client(UserAuthen.getCredentialsProvider(context));
+		return AWSAuthen.getS3Client(AWSAuthen.getCredentialsProvider(context));
 	}
 
 	private ObjectListing getObjects(Bucket bucket){

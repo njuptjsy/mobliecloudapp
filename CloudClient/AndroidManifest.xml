@@ -56,8 +56,8 @@
             </intent-filter> -->
         </activity>
         <activity android:name="com.njuptjsy.cloudclient.SimpleChart"></activity>
-        <activity android:name="com.njuptjsy.cloudclient.SelectFilesActivity"></activity>
-        <activity android:name="com.njuptjsy.cloudclient.FileExplore"></activity>
+        <activity android:name="com.njuptjsy.cloudclient.upload.SelectFilesActivity"></activity>
+        <activity android:name="com.njuptjsy.cloudclient.upload.FileExplore"></activity>
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.njuptjsy.cloudclient;
+package com.njuptjsy.cloudclient.query;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.njuptjsy.cloudclient.MyApplication;
+
 import android.R.integer;
 import android.app.Activity;
 import android.app.ActivityManager;
