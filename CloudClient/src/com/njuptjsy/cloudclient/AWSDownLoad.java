@@ -13,19 +13,20 @@ import com.amazonaws.mobileconnectors.s3.transfermanager.Download;
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.njuptjsy.cloudclient.InfoContainer.MESSAGE_TYPE;
 
-public class DownLoadFiles implements Runnable{
+public class AWSDownLoad implements com.njuptjsy.cloudclient.Download{
 	private List<Map<String, Object>> fileToDownload;
 	private TransferManager transferManager = null;
 	private Context context;
 	private Handler handler;
 	private Download download;
 
-	public DownLoadFiles(List<Map<String, Object>> fileToDownload, Context context, Handler handler){
+	public AWSDownLoad(List<Map<String, Object>> fileToDownload, Context context, Handler handler){
 		this.fileToDownload = fileToDownload;
 		this.context = context;
 		this.handler = handler;
 	}
 
+	@Override
 	public void run(){
 		Iterator<Map<String, Object>> iterator = fileToDownload.iterator();
 		while (iterator.hasNext()) {
@@ -48,8 +49,9 @@ public class DownLoadFiles implements Runnable{
 			transferManager = new TransferManager(UserAuthen.getCredentialsProvider(context));
 		return transferManager;
 	}
-
-	private void download(String bucket_name,String key, File file ){
+	
+	@Override
+	public void download(String bucket_name,String key, File file ){
 		download = getTransferManager().download(bucket_name, key, file);
 	}
 
@@ -67,8 +69,9 @@ public class DownLoadFiles implements Runnable{
 		}
 		return file;
 	}
-
-	private void sendDownLoadResult(MESSAGE_TYPE msgType){
+	
+	@Override
+	public void sendDownLoadResult(MESSAGE_TYPE msgType){
 		Message msg = Message.obtain();
 		msg.obj = msgType;
 		handler.sendMessage(msg);

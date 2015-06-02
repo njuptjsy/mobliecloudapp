@@ -36,7 +36,7 @@ public class UserAuthen implements Runnable{
 	public static CognitoCachingCredentialsProvider credentialsProvider = null;
 	private Context context = null;
 	private Handler handler;
-	public static boolean isLogin = false;
+	public static boolean isLegal = false;
 	public static boolean userAuthenIsRunning = false;
 	public UserAuthen(String username,String pwd,Context context,Handler handler)
 	{
@@ -49,8 +49,8 @@ public class UserAuthen implements Runnable{
 	public void run(){
 		userAuthenIsRunning = true;
 		String tag = "UserAuthen:run";
-		isLogin = authenticate();
-		if (isLogin) {
+		isLegal = authenticate();
+		if (isLegal) {
 			login();
 			userAuthenIsRunning = false;
 		}
@@ -74,7 +74,7 @@ public class UserAuthen implements Runnable{
 	{
 		String tag = "UserAuthen:login";
 		boolean reponse = false;
-		if (InternetUtils.connectInternet(context))
+		if (ClientUtils.connectInternet(context))
 		{	
 			try {
 				reponse =  getS3Client(getCredentialsProvider(context)).doesBucketExist(BUCKET_NAME);

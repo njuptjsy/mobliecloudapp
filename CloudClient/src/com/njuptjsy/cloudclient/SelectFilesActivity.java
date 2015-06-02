@@ -44,13 +44,30 @@ public class SelectFilesActivity extends BaseActivity {
 		sendListener = new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (!UserAuthen.isLogin) {
-					Toast.makeText(SelectFilesActivity.this, SelectFilesActivity.this.getString(R.string.please_login), Toast.LENGTH_LONG).show();
+				if (!MainActivity.isLogin) {
+					Toast.makeText(SelectFilesActivity.this, getString(R.string.please_login), Toast.LENGTH_LONG).show();
 					return;
 				}
 				//点击上传云端
 				MainActivity.showProcessDialog(getString(R.string.upload_data), getString(R.string.please_wait), SelectFilesActivity.this);
-				UploadFiles uploadFiles = new UploadFiles(getFilesName(), SelectFilesActivity.this, handler);
+				Upload uploadFiles = null; 
+				switch (MainActivity.selectedCloud) {
+				case 0:
+					//cloudName = getString(R.string.aliyun);
+					uploadFiles = new AliyunUpload(getFilesName(), SelectFilesActivity.this, handler);
+					break;
+				case 1:
+					//cloudName = getString(R.string.aws);
+					uploadFiles = new AWSUpload(getFilesName(), SelectFilesActivity.this, handler);
+					break;
+				case 2:
+					//cloudName = getString(R.string.openstack);
+					uploadFiles = new OpenStackUpload(getFilesName(), SelectFilesActivity.this, handler);
+					break;
+				default:
+					uploadFiles = new AliyunUpload(getFilesName(), SelectFilesActivity.this, handler);//什么都没选的情况下默认使用阿里云
+					break;
+				}
 				Thread uploadThread = new Thread(uploadFiles);
 				uploadThread.start();
 			}

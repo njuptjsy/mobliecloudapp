@@ -23,6 +23,7 @@ import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
@@ -51,38 +52,41 @@ import android.widget.AdapterView.OnItemClickListener;
  * */
 public class MainActivity extends BaseActivity {
 	private String [] mainItem;  
-	public enum enumView{vauthen,vgirdAct,vhelp,vabout,vemail,vresource,vdownload};//for use switch case in setActiveView function 
-	private View authenView,helpView,aboutView,EmailView,resourceView,gridAct,currentView,downloadView;
+	public enum enumView{vauthen,vafterAuthen,vgirdAct,vhelp,vabout,vemail,vresource,vdownload};//for use switch case in setActiveView function 
+	private View authenView,afterAuthenView,helpView,aboutView,EmailView,resourceView,gridAct,currentView,downloadView;
 	private long firstTime;
 	private WebView webview,resmanageView;
-	public TextView username,password,problem,fileToDownload;
-	public Button login,forgetpsw,sendmail,download;
+	public TextView username,password,problem,fileToDownload,authenTitle,authenInfo;
+	public Button login,logout,sendmail,download;
 	private AlertDialog aboutDialog;
 	private Handler mainHandler,messageHandler;
 	public static ProgressDialog progressDialog;
 	private ListView fileListView;
 	private List<Map<String, Object>> displayList,filesList,selectedFlies;
 	private SimpleAdapter adapterForFileList;
-	private String selectedFile;
+	private String selectedFile,cloudName;
 	private CheckBox rememberPwd,rememberUser;
 	private SharedPreferences pref;
 	private SharedPreferences.Editor editor;
 	private DatabaseHelper dbhHelper;
-	private Boolean needQuery;
+	private boolean needQuery;
+	public static boolean isLogin;
 	private DeviceInfo deviceInfo;
+	public static int selectedCloud;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		mainItem = new String [] {getString(R.string.authentication),getString(R.string.res_manage),
 				getString(R.string.upload_data),getString(R.string.download_data),getString(R.string.show_data),
-				getString(R.string.send_mail),getString(R.string.user_guide),getString(R.string.about_cloudclient)};
+				getString(R.string.send_mail),getString(R.string.computer_offload),getString(R.string.about_cloudclient)};
 		displayList =new ArrayList<Map<String,Object>>();
 		filesList = new ArrayList<Map<String,Object>>();
 		selectedFlies = new ArrayList<Map<String,Object>>();
 		pref = PreferenceManager.getDefaultSharedPreferences(this);
 		dbhHelper = new DatabaseHelper(this, "CloudClient.db", null, 1);
 		
+		afterAuthenView = getLayoutInflater().inflate(R.layout.afertauthen, null);
 		gridAct = getLayoutInflater().inflate( R.layout.activity_main, null);
 		authenView = getLayoutInflater().inflate( R.layout.authen, null);
 		helpView = getLayoutInflater().inflate(R.layout.cc_user_guide, null);
@@ -155,7 +159,7 @@ public class MainActivity extends BaseActivity {
 				fileSelectedByCheckbox();
 				//start download files thread
 				showProcessDialog(getString(R.string.download_data),getString(R.string.please_wait),MainActivity.this);
-				DownLoadFiles downLoadFiles = new DownLoadFiles(selectedFlies,MainActivity.this,mainHandler);
+				AWSDownLoad downLoadFiles = new AWSDownLoad(selectedFlies,MainActivity.this,mainHandler);
 				Thread downloadThread = new Thread(downLoadFiles);
 				downloadThread.start();
 			}
@@ -213,10 +217,12 @@ public class MainActivity extends BaseActivity {
 
 	private void initAuthen() {
 		final String tag = "MainActivity：initAuthen";
-		username = (TextView)authenView.findViewById(R.id.username);
-		password = (TextView)authenView.findViewById(R.id.userkey);
+		authenTitle = (TextView)authenView.findViewById(R.id.authentitle);
+		authenInfo = (TextView)afterAuthenView.findViewById(R.id.loginfo);
+		username = (EditText)authenView.findViewById(R.id.username);
+		password = (EditText)authenView.findViewById(R.id.userkey);
 		login = (Button)authenView.findViewById(R.id.log_in);
-		forgetpsw = (Button)authenView.findViewById(R.id.forgetpassword);
+		logout = (Button)afterAuthenView.findViewById(R.id.log_out);
 		rememberPwd = (CheckBox)authenView.findViewById(R.id.remember_pwd);
 		rememberUser = (CheckBox)authenView.findViewById(R.id.remember_user);
 
@@ -246,8 +252,23 @@ public class MainActivity extends BaseActivity {
 			}
 		});
 		isRemeberUserInfo();
+		
+		logout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (!isLogin) {
+					Toast.makeText(MainActivity.this,getString(R.string.please_login), Toast.LENGTH_LONG).show();
+					return;
+				}
+				isLogin = false;
+				setActiveView(enumView.vauthen);
+				selectCloud();
+				Toast.makeText(MainActivity.this, getString(R.string.logout), Toast.LENGTH_LONG).show();
+			}
+		});
 	}
-
+	
 	private void initgridAct()
 	{
 		GridView gridView;
@@ -258,7 +279,6 @@ public class MainActivity extends BaseActivity {
 
 		gridView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
 				onGridItemClicked(parent, v, position, id);
 			}
 		});
@@ -270,7 +290,14 @@ public class MainActivity extends BaseActivity {
 		switch(position)
 		{
 		case 0:
-			setActiveView(enumView.vauthen);
+			if (isLogin) {
+				setActiveView(enumView.vafterAuthen);
+			}
+			else {
+				setActiveView(enumView.vauthen);
+				selectCloud();
+			}
+			
 			break;
 		case 1:
 			setActiveView(enumView.vresource);
@@ -284,7 +311,7 @@ public class MainActivity extends BaseActivity {
 			 *2.new thread to find file information from cloud
 			 *3.use file information fill in ExpandableListView
 			 * */
-			if (!UserAuthen.isLogin) {
+			if (!isLogin) {
 				Toast.makeText(MainActivity.this,getString(R.string.please_login), Toast.LENGTH_LONG).show();
 				return;
 			}
@@ -358,6 +385,10 @@ public class MainActivity extends BaseActivity {
 			setContentView(authenView);
 			currentView = authenView;
 			break;
+		case vafterAuthen:
+			setContentView(afterAuthenView);
+			currentView = afterAuthenView;
+			break;	
 		case vgirdAct:
 			setContentView(gridAct);
 			currentView = gridAct;
@@ -415,7 +446,10 @@ public class MainActivity extends BaseActivity {
 				setActiveView(enumView.vgirdAct);
 				return true;
 			}
-
+			if (currentView == afterAuthenView) {
+				setActiveView(enumView.vgirdAct);
+				return true;
+			}
 			if (currentView == resourceView) {
 				setActiveView(enumView.vgirdAct);
 				return true;
@@ -469,8 +503,10 @@ public class MainActivity extends BaseActivity {
 					Toast.makeText(MainActivity.this, getString(R.string.user_unauthen_fail), Toast.LENGTH_LONG).show();
 					break;
 				case LOGIN_SUCCESS:
+					isLogin = true;
 					Toast.makeText(MainActivity.this, getString(R.string.login_success), Toast.LENGTH_LONG).show();
-					setActiveView(enumView.vgirdAct);
+					authenInfo.setText(getString(R.string.logtocloud)+" "+cloudName);
+					setActiveView(enumView.vafterAuthen);
 					break;
 				case LOGIN_FAILED_RETRY:
 					Toast.makeText(MainActivity.this, getString(R.string.login_failed_retry), Toast.LENGTH_LONG).show();
@@ -524,10 +560,10 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private void startQueryCloud(){
-		if (QueryCloud.queryCloudIsRunning) {
+		if (QueryAWS.queryCloudIsRunning) {
 			return;
 		}
-		QueryCloud queryCloud = new QueryCloud(MainActivity.this,messageHandler,mainHandler);
+		QueryAWS queryCloud = new QueryAWS(MainActivity.this,messageHandler,mainHandler);
 		Thread queryThread = new Thread(queryCloud);
 		queryThread.start();
 	}
@@ -651,7 +687,7 @@ public class MainActivity extends BaseActivity {
 		}
 	}
 
-	private void isRemeberUserInfo(){
+	private void isRemeberUserInfo(){//根据SharedPreferences中保存的信息取出用户名密码，进行填充
 		boolean isRememberUser = pref.getBoolean("rememberUser", false);
 		boolean isRememberPwd = pref.getBoolean("rememberPwd", false);
 
@@ -668,7 +704,7 @@ public class MainActivity extends BaseActivity {
 		}
 	}
 
-	private void SaveUserInfo(String userName,String pwd){
+	private void SaveUserInfo(String userName,String pwd){//在登录界面根据CheckBox的选择情况，记录用户名密码
 		editor = pref.edit();
 		if (rememberPwd.isChecked()) {
 			editor.putString("userName", userName);
@@ -744,4 +780,39 @@ public class MainActivity extends BaseActivity {
 		deviceInfo.unregisterBatteryReceiver();
 	} 
 	
+	private void selectCloud() {//显示云平台的选择框
+		AlertDialog selectCloudDialog = new AlertDialog.Builder(this)  
+		.setTitle(getString(R.string.selectcloud))  
+		.setIcon(android.R.drawable.ic_dialog_info)                  
+		.setSingleChoiceItems(new String[] {getString(R.string.aliyun),getString(R.string.aws),getString(R.string.openstack)}, selectedCloud,   
+				new DialogInterface.OnClickListener() {  
+			@Override
+			public void onClick(DialogInterface dialog, int which) {  
+				selectedCloud = which;//0 = aliyu 1=aws 2=openstack
+				setAuthenTitle();
+			}
+			
+		})
+		.setNegativeButton(getString(R.string.sure), null)  
+		.show();
+		
+	}
+	
+	private void setAuthenTitle() {
+		switch (selectedCloud) {
+		case 0:
+			cloudName = getString(R.string.aliyun);
+			break;
+		case 1:
+			cloudName = getString(R.string.aws);
+			break;
+		case 2:
+			cloudName = getString(R.string.openstack);
+			break;
+		default:
+			cloudName = getString(R.string.aliyun);
+			break;
+		}
+		authenTitle.setText(cloudName);
+	}
 }

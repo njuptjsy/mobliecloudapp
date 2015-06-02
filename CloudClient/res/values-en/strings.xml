@@ -8,15 +8,15 @@
     <string name="res_manage">云资源管理</string>
     <string name="upload_data">上传数据</string>
     <string name="download_data">下载数据</string>
-    <string name="show_data">数据表示</string>
-    <string name="send_mail">邮件反馈</string>
-    <string name="user_guide">使用帮助</string>
+    <string name="show_data">运行状态</string>
+    <string name="send_mail">使用反馈</string>
+    <string name="computer_offload">计算卸载</string>
     <string name="about_cloudclient">关于程序</string>
 	<string name="app_authen">虚拟移动存储客户端软件</string>
 	<string name="userName">云用户名</string>
 	<string name="userKey">用户密码</string>
 	<string name="log_in">登陆云端</string>
-	<string name="forgetPassword">忘记密码</string>
+	<string name="logout">退出登录</string>
 	<string name="authenHelp">使用帮助</string>
 	<string name="exit_progress"> 再按一次退出程序</string>
 	<string name="about_program">Copyright NJUPTJSY\n南京邮电大学 金思宇\n1192937986@qq.com</string>
@@ -52,5 +52,11 @@
 	<string name = "please_select">请选择要下载的文件</string>
 	<string name = "remember_pwd">记住密码</string>
 	<string name = "remember_user">记住账号</string>
-	<string name = "upload_success">上次成功</string>	
+	<string name = "upload_success">上传成功</string>	
+	<string name = "selectcloud">选择云平台</string>
+	<string name = "aliyun">Aliyun</string>
+	<string name = "aws">AWS</string>
+	<string name = "openstack">OpenStack</string>
+	<string name = "sure">确定</string>
+	<string name = "logtocloud">已登录云平台：</string>
 </resources>
