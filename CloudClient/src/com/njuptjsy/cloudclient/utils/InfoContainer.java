@@ -1,5 +1,7 @@
 package com.njuptjsy.cloudclient.utils;
 
+import com.njuptjsy.cloudclient.query.QueryAWS;
+
 public class InfoContainer {
 	public static final String AWS_ACCOUNT_ID = "328837747656";//AWS Account id
 	public static final String COGNITO_POOL_ID = "us-east-1:1d55d22b-0386-4cba-a075-1b0bc7a8ca82";// Identity Pool ID
@@ -15,6 +17,7 @@ public class InfoContainer {
 	public static final String PASSWORD = "admin";
 	
 	public static boolean userAuthenIsRunning;
+	public static boolean queryCloudIsRunning;
 	public static boolean USERISLEGAL;
 	
 	public static enum MESSAGE_TYPE{

@@ -11,38 +11,37 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.njuptjsy.cloudclient.authen.AWSAuthen;
 import com.njuptjsy.cloudclient.utils.InfoContainer;
+import com.njuptjsy.cloudclient.utils.LogUtil;
 
 import static com.njuptjsy.cloudclient.utils.InfoContainer.*;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
-import android.view.View;
-import android.widget.ListView;
-import android.widget.Toast;
+
 
 public class QueryAWS  implements QueryCloud{
 	private Context context;
 	private Handler messageHandler;
 	private Handler mainHandler;
-	public static boolean queryCloudIsRunning = false;
+	
 
 	public QueryAWS(Context context,Handler messageHandler,Handler mainHandler){
 		this.context = context;
 		this.messageHandler = messageHandler;
 		this.mainHandler = mainHandler;
+		new Thread(this).start();
 	}
 
 	public void run(){
-		queryCloudIsRunning = true;
+		InfoContainer.queryCloudIsRunning = true;
 		Looper.prepare();
 		sendQueryResult();
-		queryCloudIsRunning = false;
+		InfoContainer.queryCloudIsRunning = false;
 	}
 
-	private Map<String, List<String>> setQueryResult() {
-		String tag = "QueryCloud:setQueryResult";
+	private Map<String, List<String>> setQueryResult() {//查询返回的数据结构是bucket对应与用list包含的该bucket中所有的bucket
+		String tag = "QueryAWS:setQueryResult";
 		List<Bucket> buckets = getBuckets();
 		String bucketName;
 		
@@ -54,14 +53,14 @@ public class QueryAWS  implements QueryCloud{
 		{
 			List<String> values = new ArrayList <String>();
 			bucketName = bucket.getName();
-			Log.v(tag, bucketName);
+			LogUtil.v(tag, bucketName);
 			if (getObjects(bucket) == null) {
 				return null;
 			}
 			List<S3ObjectSummary> s3ObjectSummaries = getObjects(bucket).getObjectSummaries();
 			for (S3ObjectSummary s3ObjectSummary:s3ObjectSummaries) {
 				values.add(s3ObjectSummary.getKey());
-				Log.v(tag, bucketName + s3ObjectSummary.getKey());
+				LogUtil.v(tag, bucketName + s3ObjectSummary.getKey());
 			}
 			objectsInBucket.put(bucketName, values);
 		}
@@ -81,8 +80,9 @@ public class QueryAWS  implements QueryCloud{
 		}
 
 	}
-
-	private List<Bucket> getBuckets(){
+	
+	@Override
+	public List<Bucket> getBuckets(){
 		try {
 			return getAmazonS3Client().listBuckets();
 		} catch (Exception e) {
@@ -92,7 +92,7 @@ public class QueryAWS  implements QueryCloud{
 	}
 
 	@Override
-	public void sendQueryResult(){
+	public void sendQueryResult(){//返回主线程的查询结果是查询结果的MESSAGE_TYPE表示和查询结果
 		Message message = Message.obtain();
 		Map<MESSAGE_TYPE, Map<String, List<String>>> resultMap = new HashMap<MESSAGE_TYPE, Map<String, List<String>>>();
 		Map<String, List<String>> qureyResult = setQueryResult();

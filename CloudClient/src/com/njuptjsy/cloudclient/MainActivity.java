@@ -19,6 +19,8 @@ import com.njuptjsy.cloudclient.authen.UserAuthen;
 import com.njuptjsy.cloudclient.download.AWSDownLoad;
 import com.njuptjsy.cloudclient.query.DeviceInfo;
 import com.njuptjsy.cloudclient.query.QueryAWS;
+import com.njuptjsy.cloudclient.query.QueryAliyun;
+import com.njuptjsy.cloudclient.query.QueryCloud;
 import com.njuptjsy.cloudclient.upload.SelectFilesActivity;
 import com.njuptjsy.cloudclient.utils.InfoContainer;
 import com.njuptjsy.cloudclient.utils.LogUtil;
@@ -342,11 +344,11 @@ public class MainActivity extends BaseActivity {
 				Toast.makeText(MainActivity.this,getString(R.string.please_login), Toast.LENGTH_LONG).show();
 				return;
 			}
-			fileToDownload.setText(R.string.file_in_cloud);
+			fileToDownload.setText(cloudName+R.string.file_in_cloud);
 			setActiveView(enumView.vdownload);
 			if (needQuery) {
 				showProcessDialog(getString(R.string.checking_cloud), getString(R.string.please_wait), MainActivity.this);
-				startQueryCloud();
+				startQueryCloud(selectedCloud);
 			}
 			break;
 		case 4:
@@ -587,13 +589,28 @@ public class MainActivity extends BaseActivity {
 
 	}
 
-	private void startQueryCloud(){
-		if (QueryAWS.queryCloudIsRunning) {
+	private void startQueryCloud(int selectedCloud){
+		if (InfoContainer.queryCloudIsRunning) {
 			return;
 		}
-		QueryAWS queryCloud = new QueryAWS(MainActivity.this,messageHandler,mainHandler);
-		Thread queryThread = new Thread(queryCloud);
-		queryThread.start();
+		
+		
+		QueryCloud queryCloud = null;
+		switch (selectedCloud) {
+		case 0:
+			queryCloud = new QueryAliyun(MainActivity.this,messageHandler,mainHandler);
+			break;
+		case 1:
+			queryCloud = new QueryAWS(MainActivity.this,messageHandler,mainHandler);
+			break;
+		case 2:
+
+			break;
+		default:
+			break;
+		}
+		
+		//所有的查询线程在新建thread对象是就开启线程了
 	}
 
 	private void refactorQueryResult(Map<String, List<String>> queryResult){
@@ -809,7 +826,7 @@ public class MainActivity extends BaseActivity {
 	} 
 	
 	private void selectCloud() {//显示云平台的选择框
-		AlertDialog selectCloudDialog = new AlertDialog.Builder(this)  
+		new AlertDialog.Builder(this)  
 		.setTitle(getString(R.string.selectcloud))  
 		.setIcon(android.R.drawable.ic_dialog_info)                  
 		.setSingleChoiceItems(new String[] {getString(R.string.aliyun),getString(R.string.aws),getString(R.string.openstack)}, selectedCloud,   
@@ -819,11 +836,11 @@ public class MainActivity extends BaseActivity {
 				selectedCloud = which;//0 = aliyu 1=aws 2=openstack
 				setAuthenTitle();
 			}
-			
+
 		})
 		.setNegativeButton(getString(R.string.sure), null)  
 		.show();
-		
+
 	}
 	
 	private void setAuthenTitle() {
