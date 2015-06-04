@@ -534,6 +534,9 @@ public class MainActivity extends BaseActivity {
 				case LOGIN_SUCCESS:
 					isLogin = true;
 					Toast.makeText(MainActivity.this, getString(R.string.login_success), Toast.LENGTH_LONG).show();
+					if (cloudName == null) {//如果用户直接点击确定，默认进行认证的是阿里云
+						cloudName = "Aliyun";
+					}
 					authenInfo.setText(getString(R.string.logtocloud)+" "+cloudName);
 					setActiveView(enumView.vafterAuthen);
 					break;
@@ -844,6 +847,7 @@ public class MainActivity extends BaseActivity {
 	}
 	
 	private void setAuthenTitle() {
+		
 		switch (selectedCloud) {
 		case 0:
 			cloudName = getString(R.string.aliyun);
@@ -855,7 +859,6 @@ public class MainActivity extends BaseActivity {
 			cloudName = getString(R.string.openstack);
 			break;
 		default:
-			cloudName = getString(R.string.aliyun);
 			break;
 		}
 		authenTitle.setText(cloudName);

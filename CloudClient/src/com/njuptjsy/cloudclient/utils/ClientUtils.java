@@ -1,16 +1,20 @@
-package com.njuptjsy.cloudclient.utils;
+ï»¿package com.njuptjsy.cloudclient.utils;
 
 import java.io.File;
+
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
+
 //import static com.njuptjsy.cloudclient.utils.InfoContainer.*;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 /**
- *Í¨¹ı¾²Ì¬µ¼ÈëÕâ¸öÀàÊ¹ÓÃ±¾ÀàÌá¹©µÄÈ«²¿¾²Ì¬¹¤¾ß·½·¨ 
- * */
+ *å·²é™æ€æ–¹æ³•çš„å½¢å¼ä¿å­˜cloudclientçš„å¸¸ç”¨æ“ä½œ
+ * * */
 public class ClientUtils {
-	public static boolean connectInternet(Context context) {
+	public static boolean connectInternet(Context context) {//æ˜¯å¦è¿æ¥ç½‘ç»œ
 		Log.v("InternetUtils:connectInternet", "decide wherter connect to internet");
 		if (context != null) {  
 			ConnectivityManager mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);  
@@ -22,7 +26,7 @@ public class ClientUtils {
 		return false;
 	}
 	
-	public static File[] getFiles(String filesName){//½«»ñµÃµÄÑ¡ÖĞµÄÎÄ¼şÃû±ä³ÉÎÄ¼ş¶ÔÏóÊı×é
+	public static File[] getFiles(String filesName){//å°†æ–‡ä»¶å­—ç¬¦ä¸²åè£…æ¢æˆæ–‡ä»¶æ•°ç»„
 		String tag = "UploadFiles:getFiles";
 		String[] filePaths = filesName.split("\n");
 		File[] files = new File[filePaths.length];
@@ -35,12 +39,31 @@ public class ClientUtils {
 		return files;
 	}
 	
-	public static boolean authenticate(String username,String pwd,InfoContainer.CLOUD cloudType) {//ÕâÀïµÚÈı¸ö²ÎÊı±íÊ¾ÔÆµÄÀàĞÍ£¬¿ÉÒÔ¸ù¾İ²»Í¬µÄÔÆÑéÖ¤²»Í¬µÄÕËºÅºÍÃÜÂë£¬Ä¿Ç°´Ë¹¦ÄÜÃ»ÓĞ¿ª·¢
+	public static boolean authenticate(String username,String pwd,InfoContainer.CLOUD cloudType) {//éªŒè¯ç”¨æˆ·çš„è´¦å·å¯†ç ï¼Œè¿™é‡Œæ²¡æœ‰æ ¹æ®ä¸åŒçš„äº‘éªŒè¯ä¸åŒçš„è´¦å·å¯†ç 
 		if (InfoContainer.USER_NAME.equalsIgnoreCase(username) && InfoContainer.PASSWORD.equalsIgnoreCase(pwd)) 
 			return true;
 		else
 			return false;
 	}
 	
-	//¿ÉÒÔ½«Ò»Ğ©³£ÓÃµÄÓï¾ä°ü×°³ÉÒ»¸öº¯Êı£¬¼õÉÙÊäÈë×Ö·ûÊı£¬Èçtoast
+	//å¯ä»¥å°†toastè¿™æ ·å¸¸ç”¨çš„æ–¹æ³•è¿›è¡Œç®€åŒ–
+	
+	/**  
+     * ä½¿ç”¨ HMAC-SHA1 ç­¾åæ–¹æ³•å¯¹å¯¹encryptTextè¿›è¡Œç­¾å  
+     * @param encryptText è¢«ç­¾åçš„å­—ç¬¦ä¸²  
+     * @param encryptKey  å¯†é’¥  
+     * @return  
+     * @throws Exception  
+     */   
+	public static String HmacSHA1Encrypt(String encryptKey,String encryptText) throws Exception     
+    {   
+		String macMethod = "HmacSHA1";
+		String encoding = "UTF-8";
+        byte[] keyBytes=encryptKey.getBytes(encoding);  
+        SecretKey secretKey = new SecretKeySpec(keyBytes, macMethod);//æ ¹æ®ç»™å®šçš„å­—èŠ‚æ•°ç»„æ„é€ ä¸€ä¸ªå¯†é’¥,ç¬¬äºŒå‚æ•°æŒ‡å®šä¸€ä¸ªå¯†é’¥ç®—æ³•çš„åç§°     
+        Mac mac = Mac.getInstance(macMethod);//ç”Ÿæˆä¸€ä¸ªæŒ‡å®š Macç®—æ³• çš„ Macå¯¹è±¡     
+        mac.init(secretKey);//ç”¨ç»™å®šå¯†é’¥åˆå§‹åŒ– Mac å¯¹è±¡      
+        byte[] text = encryptText.getBytes(encoding);    
+        return new String(mac.doFinal(text));    
+    }
 }
