@@ -22,6 +22,7 @@ import org.apache.http.client.utils.URIUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
 import com.alibaba.sdk.android.oss.OSSService;
 import com.aliyun.mbaas.tools.ToolKit;
@@ -32,6 +33,7 @@ import com.njuptjsy.cloudclient.utils.InfoContainer;
 import com.njuptjsy.cloudclient.utils.LogUtil;
 
 import android.content.Context;
+import android.content.Entity;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
@@ -100,19 +102,24 @@ public class QueryAliyun implements QueryCloud{
 		
 		queryParams.add(new BasicNameValuePair("Authorization", getSignature()));
 		
-		URI url = URIUtils.createURI("http", host, -1, "", URLEncodedUtils.format(queryParams, "UTF-8"), null);
+		URI url = URIUtils.createURI("http", host, -1, "/", null, null);//ublic static URI createURI(String scheme,String host,int port,String path,String query,String fragment)
 		LogUtil.i("QueryAliyun:sendHttpGet", url+"");
 		
 		HttpGet httpGet = new HttpGet(url);
+		httpGet.addHeader("Date", getSystemTime());
+		httpGet.addHeader("Host","oss.aliyuncs.com");
+		httpGet.addHeader("Authorization", getSignature());
+		LogUtil.i("QueryAliyun:sendHttpGet", "httpget : "+httpGet.toString());
 		try {
 			HttpResponse httpResponse = httpClient.execute(httpGet);
 			if (httpResponse.getStatusLine().getStatusCode() == 200) {
 				HttpEntity entity = httpResponse.getEntity();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()));
-				String result;
-				while ((result = reader.readLine()) != null) {
-					result = result + reader.readLine();
-				}
+//				BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()));
+//				String result;
+//				while ((result = reader.readLine()) != null) {
+//					result = result + reader.readLine();
+//				}
+				String result = EntityUtils.toString(entity);
 				LogUtil.i("alyunQuery:sendHttpGet", result);
 			}
 			else {
@@ -131,10 +138,12 @@ public class QueryAliyun implements QueryCloud{
 //		String systemGMTTime =  simpleDateFormat.format(now.getTime());  
 //		LogUtil.i("QueryAliyun:sendHttpGet", "the time given by aliyun API" + (ToolKit.getGMTDate()));
 		
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(new Date());
-		calendar.add(Calendar.MINUTE, 1);
-		return Long.toString(calendar.getTimeInMillis());
+//		Calendar calendar = Calendar.getInstance();
+//		calendar.setTime(new Date());
+//		calendar.add(Calendar.MINUTE, 1);
+//		return Long.toString(calendar.getTimeInMillis());
+		
+		return ToolKit.getGMTDate();
 	}
 
 
@@ -155,15 +164,26 @@ public class QueryAliyun implements QueryCloud{
 	            + "" + "\n" 
 	            + getSystemTime() + "\n" 
 	            + ""
-	            + "";
+	            + "/";
+		
 		String signature = "";
 		try {
-			signature = ClientUtils.HmacSHA1Encrypt(InfoContainer.ALIYUN_SCRECT_ID, encryptText);
+			
+			LogUtil.i("QueryAliyun:getSignature", "encryptText: "+encryptText);
+			
+			//signature = ClientUtils.HmacSHA1Encrypt(InfoContainer.ALIYUN_SCRECT_ID, encryptText);//wrong here
+			
+			
+			signature = ToolKit.getHmacSha1Signature(encryptText, InfoContainer.ALIYUN_SCRECT_ID);
+			
+			
+			LogUtil.i("QueryAliyun:getSignature", "signature: "+signature);
 		} catch (Exception e) {
 			LogUtil.e("QueryAliyun:getSignature", " catch exception in HmacSHA1Encrypt");
 			e.printStackTrace();
 		}
 		String authorization = "OSS " + InfoContainer.ALIYUN_ACCESS_ID + ":" + signature;
+		
 		return authorization;
 	}
 

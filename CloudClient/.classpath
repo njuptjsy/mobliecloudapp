@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="libs/aws-android-sdk-s3-2.1.10.jar"/>
 	<classpathentry kind="lib" path="libs/aws-android-sdk-cognito-2.1.10.jar"/>
 	<classpathentry kind="lib" path="libs/aws-android-sdk-core-2.1.10.jar"/>
+	<classpathentry kind="lib" path="libs/oss-android-sdk-1.0.0.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

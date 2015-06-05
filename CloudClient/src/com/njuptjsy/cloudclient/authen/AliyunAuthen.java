@@ -13,6 +13,7 @@ import com.alibaba.sdk.android.oss.storage.OSSBucket;
 import com.alibaba.sdk.android.oss.util.OSSToolKit;
 import com.njuptjsy.cloudclient.utils.ClientUtils;
 import com.njuptjsy.cloudclient.utils.InfoContainer;
+import com.njuptjsy.cloudclient.utils.LogUtil;
 import com.njuptjsy.cloudclient.utils.InfoContainer.MESSAGE_TYPE;
 
 import android.content.Context;
@@ -86,9 +87,8 @@ public class AliyunAuthen implements UserAuthen{
 			public String generateToken(String httpMethod, String md5, String type, String date,
 					String ossHeaders, String resource) {
 
-				String content = httpMethod + "\n" + md5 + "\n" + type + "\n" + date + "\n" + ossHeaders
-						+ resource;
-
+				String content = httpMethod + "\n" + md5 + "\n" + type + "\n" + date + "\n" + ossHeaders + resource;
+				LogUtil.i("AliyunAuthen:setOSSService", "the content used to Encrypt:" + content);
 				return OSSToolKit.generateToken(InfoContainer.ALIYUN_ACCESS_ID, InfoContainer.ALIYUN_SCRECT_ID, content);
 			}
 		});
