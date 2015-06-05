@@ -31,7 +31,6 @@ import com.njuptjsy.cloudclient.authen.AliyunAuthen;
 import com.njuptjsy.cloudclient.utils.ClientUtils;
 import com.njuptjsy.cloudclient.utils.InfoContainer;
 import com.njuptjsy.cloudclient.utils.LogUtil;
-
 import android.content.Context;
 import android.content.Entity;
 import android.os.Handler;
@@ -171,11 +170,12 @@ public class QueryAliyun implements QueryCloud{
 			
 			LogUtil.i("QueryAliyun:getSignature", "encryptText: "+encryptText);
 			
-			//signature = ClientUtils.HmacSHA1Encrypt(InfoContainer.ALIYUN_SCRECT_ID, encryptText);//wrong here
+			String signatureTemp = ClientUtils.HmacSHA1Encrypt(InfoContainer.ALIYUN_SCRECT_ID, encryptText);//wrong here
+			String signatureTempBase64 = Base64.encodeToString(signature.getBytes(), Base64.DEFAULT);
 			
-			
+			System.out.println(signatureTempBase64+"+++++++");
 			signature = ToolKit.getHmacSha1Signature(encryptText, InfoContainer.ALIYUN_SCRECT_ID);
-			
+			System.out.println(signature+"============");
 			
 			LogUtil.i("QueryAliyun:getSignature", "signature: "+signature);
 		} catch (Exception e) {
