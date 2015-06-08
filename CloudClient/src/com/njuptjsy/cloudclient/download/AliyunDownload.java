@@ -10,27 +10,28 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 
-import com.amazonaws.mobileconnectors.s3.transfermanager.Download;
-import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
-import com.njuptjsy.cloudclient.authen.AWSAuthen;
-import com.njuptjsy.cloudclient.utils.InfoContainer;
+import com.alibaba.sdk.android.oss.OSSService;
+import com.alibaba.sdk.android.oss.model.OSSException;
+import com.alibaba.sdk.android.oss.storage.OSSBucket;
+import com.alibaba.sdk.android.oss.storage.OSSFile;
+import com.njuptjsy.cloudclient.authen.AliyunAuthen;
 import com.njuptjsy.cloudclient.utils.InfoContainer.MESSAGE_TYPE;
+import com.njuptjsy.cloudclient.utils.LogUtil;
 
-public class AWSDownLoad implements com.njuptjsy.cloudclient.download.Download{
+public class AliyunDownload implements Download{
 	private List<Map<String, Object>> fileToDownload;
-	private TransferManager transferManager = null;
 	private Context context;
 	private Handler handler;
-	private Download download;
+	private OSSService ossService;
 
-	public AWSDownLoad(List<Map<String, Object>> fileToDownload, Context context, Handler handler){
+	public AliyunDownload(List<Map<String, Object>> fileToDownload, Context context, Handler handler){
 		this.fileToDownload = fileToDownload;
 		this.context = context;
 		this.handler = handler;
 	}
 
 	@Override
-	public void run(){
+	public void run() {
 		Iterator<Map<String, Object>> iterator = fileToDownload.iterator();
 		while (iterator.hasNext()) {
 			Map<String, Object> fileAttribute = iterator.next();
@@ -41,21 +42,28 @@ public class AWSDownLoad implements com.njuptjsy.cloudclient.download.Download{
 			}
 			download(fileAttribute.get("bucketName").toString(), fileAttribute.get("fileKey").toString(), file);
 		}
-		while (!download.isDone()) {
 
-		}
 		sendDownLoadResult(MESSAGE_TYPE.DOWNLOAD_SUCCESS);
 	}
 
-	private TransferManager getTransferManager(){
-		if (transferManager == null)
-			transferManager = new TransferManager(AWSAuthen.getCredentialsProvider(context));
-		return transferManager;
-	}
-	
 	@Override
-	public void download(String bucket_name,String key, File file ){
-		download = getTransferManager().download(bucket_name, key, file);
+	public void download(String bucket_name, String key, File file) {
+		ossService = AliyunAuthen.getOSSClient();
+		OSSBucket ossBucket = ossService.getOssBucket(bucket_name);
+		OSSFile ossFile = ossService.getOssFile(ossBucket,key);
+		try {
+			ossFile.downloadTo(file.getPath());
+		} catch (OSSException e) {
+			LogUtil.e("AliyunDownload:download", "download function error");
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void sendDownLoadResult(MESSAGE_TYPE msgType) {
+		Message msg = Message.obtain();
+		msg.obj = msgType;
+		handler.sendMessage(msg);
 	}
 
 	private File saveFileTo(String fileKey){
@@ -72,13 +80,4 @@ public class AWSDownLoad implements com.njuptjsy.cloudclient.download.Download{
 		}
 		return file;
 	}
-	
-	@Override
-	public void sendDownLoadResult(MESSAGE_TYPE msgType){
-		Message msg = Message.obtain();
-		msg.obj = msgType;
-		handler.sendMessage(msg);
-	}
-
-
 }

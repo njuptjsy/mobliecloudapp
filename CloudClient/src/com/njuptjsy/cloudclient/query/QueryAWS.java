@@ -24,7 +24,7 @@ public class QueryAWS  implements QueryCloud{
 	private Context context;
 	private Handler messageHandler;
 	private Handler mainHandler;
-	
+	private List<Bucket> buckets;
 
 	public QueryAWS(Context context,Handler messageHandler,Handler mainHandler){
 		this.context = context;
@@ -42,7 +42,6 @@ public class QueryAWS  implements QueryCloud{
 
 	private Map<String, List<String>> setQueryResult() {//查询返回的数据结构是bucket对应与用list包含的该bucket中所有的bucket
 		String tag = "QueryAWS:setQueryResult";
-		List<Bucket> buckets = getBuckets();
 		String bucketName;
 		
 		Map<String, List<String>> objectsInBucket = new HashMap<String, List<String>>();
@@ -82,11 +81,11 @@ public class QueryAWS  implements QueryCloud{
 	}
 	
 	@Override
-	public List<Bucket> getBuckets(){
+	public void getBuckets(){
 		try {
-			return getAmazonS3Client().listBuckets();
+			buckets = getAmazonS3Client().listBuckets();
 		} catch (Exception e) {
-			return null;
+			buckets = null;
 		}
 
 	}

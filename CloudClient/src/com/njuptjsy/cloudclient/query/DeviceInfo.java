@@ -73,7 +73,7 @@ public class DeviceInfo {
 	            scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 	            temperature = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1);
 	            voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
-	            Log.i("BatteryManager", "level is "+level+"/"+scale+", temp is "+ temperature +", voltage is "+voltage);
+	            Log.i("DeviceInfo:batteryLevel", "level is "+level+"/"+scale+", temp is "+ temperature +", voltage is "+voltage);
 	        }
 	    };
 	    IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -94,7 +94,7 @@ public class DeviceInfo {
 			if(topresult.trim().length()<1){
 				continue;
 			}else{
-				Log.i("CpuUsage", topresult);
+				Log.i("DeviceInfo:CpuUsage", topresult);
 				String[] cpuInfoStrings = topresult.split(",");
 				cpuInfo = new HashMap<String,Integer>();
 				cpuInfo.put("Users",findNumInString(cpuInfoStrings[0]));
@@ -126,9 +126,9 @@ public class DeviceInfo {
 			long  blockSize = sf.getBlockSize();  
 			long  blockCount = sf.getBlockCount();  
 			long  availCount = sf.getAvailableBlocks();  
-			Log.d("" ,  "block´óĞ¡:" + blockSize+ ",blockÊıÄ¿:" + blockCount+ ",×Ü´óĞ¡:" +blockSize*blockCount/ 1024 /1024+ "MB" ); 
+			Log.d("Device:SDCardSizee" ,  "blockSize:" + blockSize+ ",blockæ•°é‡:" + blockCount+ "æ€»å¤§å°:" +blockSize*blockCount/ 1024 /1024+ "MB" ); 
 			totalSizeInSd = blockSize*blockCount/ 1024 /1024;
-			Log.d("" ,  "¿ÉÓÃµÄblockÊıÄ¿£º:" + availCount+ ",Ê£Óà¿Õ¼ä:" + availCount*blockSize/ 1024 /1024+ "MB" );
+			Log.d("Device:SDCardSize" ,  "å¯ç”¨blockæ•°:" + availCount+ "å¯ç”¨å¤§å°:" + availCount*blockSize/ 1024 /1024+ "MB" );
 			usefulSizeInSd = availCount*blockSize/ 1024 / 1024;
 		}
 		else {
@@ -143,20 +143,16 @@ public class DeviceInfo {
 		long blockSize = sf.getBlockSize();  
 		long blockCount = sf.getBlockCount();  
 		long availCount = sf.getAvailableBlocks();  
-		Log.d("", "block´óĞ¡:"+ blockSize+",blockÊıÄ¿:"+ blockCount+",×Ü´óĞ¡:"+blockSize*blockCount/1024+"MB"); 
+		Log.d("Device:internalStorageSize", "blockSize:"+ blockSize+"blockæ•°é‡:"+ blockCount+"æ€»å¤§å°:"+blockSize*blockCount/1024+"MB"); 
 		totalSizeInternal = blockSize*blockCount/1024/1024;
-		Log.d("", "¿ÉÓÃµÄblockÊıÄ¿£º:"+ availCount+",¿ÉÓÃ´óĞ¡:"+ availCount*blockSize/1024+"MB"); 
+		Log.d("Device:internalStorageSize", "å¯ç”¨blockæ•°"+ availCount+"å¯ç”¨å¤§å°:"+ availCount*blockSize/1024+"MB"); 
 		usefulSizeInternal = availCount*blockSize/1024/1024;
 	}
 
 	public void memoryInfo(){
-		//»ñµÃMemoryInfo¶ÔÏó
 		ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
-		//»ñÈ¡ÏµÍ³·şÎñĞÅÏ¢
 		ActivityManager myActivityManager = (ActivityManager)MyApplication.getContext().getSystemService(Activity.ACTIVITY_SERVICE);
-		//»ñµÃÏµÍ³¿ÉÓÃÄÚ´æ£¬±£´æÔÚMemoryInfo¶ÔÏóÉÏ
 		myActivityManager.getMemoryInfo(memoryInfo);
 		usefulMemorySize = memoryInfo.availMem / 1024 /1024;
-		//totalMemorySize = memoryInfo.totalMem;
 	}
 }

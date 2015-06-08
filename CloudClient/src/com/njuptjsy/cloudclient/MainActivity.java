@@ -16,7 +16,9 @@ import com.njuptjsy.cloudclient.MyAdapter.ViewHolder;
 import com.njuptjsy.cloudclient.authen.AWSAuthen;
 import com.njuptjsy.cloudclient.authen.AliyunAuthen;
 import com.njuptjsy.cloudclient.authen.UserAuthen;
-import com.njuptjsy.cloudclient.download.AWSDownLoad;
+import com.njuptjsy.cloudclient.download.AWSDownload;
+import com.njuptjsy.cloudclient.download.AliyunDownload;
+import com.njuptjsy.cloudclient.download.Download;
 import com.njuptjsy.cloudclient.query.DeviceInfo;
 import com.njuptjsy.cloudclient.query.QueryAWS;
 import com.njuptjsy.cloudclient.query.QueryAliyun;
@@ -170,8 +172,21 @@ public class MainActivity extends BaseActivity {
 				fileSelectedByCheckbox();
 				//start download files thread
 				showProcessDialog(getString(R.string.download_data),getString(R.string.please_wait),MainActivity.this);
-				AWSDownLoad downLoadFiles = new AWSDownLoad(selectedFlies,MainActivity.this,mainHandler);
-				Thread downloadThread = new Thread(downLoadFiles);
+				Download download = null;
+				switch (selectedCloud) {
+				case 0:
+					download = new AliyunDownload(selectedFlies,MainActivity.this,mainHandler);
+					break;
+				case 1:
+					download = new AWSDownload(selectedFlies,MainActivity.this,mainHandler);
+					break;
+				case 2:
+
+					break;
+				default:
+					break;
+				}
+				Thread downloadThread = new Thread(download);
 				downloadThread.start();
 			}
 		});
@@ -181,8 +196,6 @@ public class MainActivity extends BaseActivity {
 		resmanageView = (WebView)resourceView.findViewById(R.id.resmanage);
 		WebSettings webSettings = resmanageView.getSettings();
 		webSettings.setBuiltInZoomControls(true);
-		//webSettings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);//��Ӧ��Ļ���ܲ��ÿ�
-		//优化webkit加载时间
 		webSettings.setUseWideViewPort(true); 
 		webSettings.setLoadWithOverviewMode(true);
 		webSettings.setRenderPriority(RenderPriority.HIGH);
@@ -344,7 +357,7 @@ public class MainActivity extends BaseActivity {
 				Toast.makeText(MainActivity.this,getString(R.string.please_login), Toast.LENGTH_LONG).show();
 				return;
 			}
-			fileToDownload.setText(cloudName+R.string.file_in_cloud);
+			fileToDownload.setText(cloudName+getString(R.string.file_in_cloud));
 			setActiveView(enumView.vdownload);
 			if (needQuery) {
 				showProcessDialog(getString(R.string.checking_cloud), getString(R.string.please_wait), MainActivity.this);
@@ -801,10 +814,10 @@ public class MainActivity extends BaseActivity {
 		
 		try {
 			deviceInfo.CpuUsage();
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		Map<String, Integer> cpuUsage = deviceInfo.getCpuUsage();
 		
 		deviceInfo.SDCardSize();
