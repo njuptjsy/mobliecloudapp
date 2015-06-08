@@ -1,27 +1,16 @@
 package com.njuptjsy.cloudclient.query;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-
-import javax.mail.internet.NewsAddress;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIUtils;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import com.alibaba.sdk.android.oss.OSSService;
@@ -31,8 +20,8 @@ import com.njuptjsy.cloudclient.authen.AliyunAuthen;
 import com.njuptjsy.cloudclient.utils.ClientUtils;
 import com.njuptjsy.cloudclient.utils.InfoContainer;
 import com.njuptjsy.cloudclient.utils.LogUtil;
+
 import android.content.Context;
-import android.content.Entity;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
@@ -85,21 +74,10 @@ public class QueryAliyun implements QueryCloud{
 	 * Host: oss.aliyuncs.com
 	 * Date: GMT Date
      * Authorization: SignatureValue
-     * 	GET / HTTP/1.1
-		Date: Thu, 15 May 2014 11:18:32 GMT
-		Host: 10.97.188.37
-		Authorization: OSS nxj7dtl1c24jwhcyl5hpvnhi:COS3OQkfQPnKmYZTEHYv2qUl5jI=
-     * http://oss-example.oss-cn-hangzhou.aliyuncs.com/oss-api.pdf?OSSAccessKeyId=44CF9590006BF252F707&Expires=1141889120&Signature=vjbyPxybdZaNmGa%2ByT272YEAiv4%3D
 	 * */
-	
-	
 	private void sendHttpGet() throws URISyntaxException {
 		HttpClient httpClient = new DefaultHttpClient();
 		String host = "oss.aliyuncs.com";
-		List<BasicNameValuePair> queryParams = new ArrayList<BasicNameValuePair>(); 
-		queryParams.add(new BasicNameValuePair("Date", getSystemTime()));
-		
-		queryParams.add(new BasicNameValuePair("Authorization", getSignature()));
 		
 		URI url = URIUtils.createURI("http", host, -1, "/", null, null);//ublic static URI createURI(String scheme,String host,int port,String path,String query,String fragment)
 		LogUtil.i("QueryAliyun:sendHttpGet", url+"");
@@ -108,7 +86,7 @@ public class QueryAliyun implements QueryCloud{
 		httpGet.addHeader("Date", getSystemTime());
 		httpGet.addHeader("Host","oss.aliyuncs.com");
 		httpGet.addHeader("Authorization", getSignature());
-		LogUtil.i("QueryAliyun:sendHttpGet", "httpget : "+httpGet.toString());
+		
 		try {
 			HttpResponse httpResponse = httpClient.execute(httpGet);
 			if (httpResponse.getStatusLine().getStatusCode() == 200) {
@@ -131,17 +109,6 @@ public class QueryAliyun implements QueryCloud{
 	}
 	
 	private String getSystemTime() {
-//		Date now = new Date();//set to the current date and time  
-//		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.CHINA);  
-//		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT")); // 设置时区为GMT  
-//		String systemGMTTime =  simpleDateFormat.format(now.getTime());  
-//		LogUtil.i("QueryAliyun:sendHttpGet", "the time given by aliyun API" + (ToolKit.getGMTDate()));
-		
-//		Calendar calendar = Calendar.getInstance();
-//		calendar.setTime(new Date());
-//		calendar.add(Calendar.MINUTE, 1);
-//		return Long.toString(calendar.getTimeInMillis());
-		
 		return ToolKit.getGMTDate();
 	}
 
@@ -156,7 +123,7 @@ public class QueryAliyun implements QueryCloud{
             + CanonicalizedOSSHeaders
             + CanonicalizedResource))
 	 * */
-
+	//base64.encodestring(h.digest()).strip()
 	private String getSignature(){
 		String encryptText = "GET" + "\n" 
 	            + "" + "\n" 
@@ -168,16 +135,12 @@ public class QueryAliyun implements QueryCloud{
 		String signature = "";
 		try {
 			
-			LogUtil.i("QueryAliyun:getSignature", "encryptText: "+encryptText);
-			
-			String signatureTemp = ClientUtils.HmacSHA1Encrypt(InfoContainer.ALIYUN_SCRECT_ID, encryptText);//wrong here
-			String signatureTempBase64 = Base64.encodeToString(signature.getBytes(), Base64.DEFAULT);
-			
-			System.out.println(signatureTempBase64+"+++++++");
-			signature = ToolKit.getHmacSha1Signature(encryptText, InfoContainer.ALIYUN_SCRECT_ID);
-			System.out.println(signature+"============");
-			
-			LogUtil.i("QueryAliyun:getSignature", "signature: "+signature);
+			byte[] signatureTemp = ClientUtils.HmacSHA1Encrypt(InfoContainer.ALIYUN_SCRECT_ID, encryptText);
+			LogUtil.i("QueryAliyun:getSignature", "signature before BASE64: "+ signatureTemp);
+            testGetbyte(signatureTemp);
+			signature = Base64.encodeToString(signatureTemp, Base64.DEFAULT).trim();
+			//signature = ToolKit.getHmacSha1Signature(encryptText, InfoContainer.ALIYUN_SCRECT_ID);//there is a api provide by aliyun
+			LogUtil.i("QueryAliyun:getSignature", "signature: "+signature + " and "+ToolKit.getHmacSha1Signature(encryptText, InfoContainer.ALIYUN_SCRECT_ID));
 		} catch (Exception e) {
 			LogUtil.e("QueryAliyun:getSignature", " catch exception in HmacSHA1Encrypt");
 			e.printStackTrace();
@@ -185,6 +148,20 @@ public class QueryAliyun implements QueryCloud{
 		String authorization = "OSS " + InfoContainer.ALIYUN_ACCESS_ID + ":" + signature;
 		
 		return authorization;
+	}
+
+
+	private void testGetbyte(byte[] signatureTemp) {
+		String testString;
+		try {
+			testString = new String(signatureTemp,"ISO-8859-1");
+			byte[] testBytes = testString.getBytes("ISO-8859-1");
+			LogUtil.i("QueryAliyun:testGetbyte", signatureTemp + " and " + testBytes);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+		
 	}
 
 }

@@ -52,10 +52,10 @@ public class ClientUtils {
      * 使用 HMAC-SHA1 签名方法对对encryptText进行签名  
      * @param encryptText 被签名的字符串  
      * @param encryptKey  密钥  
-     * @return  
+     * @return 前面后的byte数组
      * @throws Exception  
      */   
-	public static String HmacSHA1Encrypt(String encryptKey,String encryptText) throws Exception     
+	public static byte[] HmacSHA1Encrypt(String encryptKey,String encryptText) throws Exception     
     {   
 		String macMethod = "HmacSHA1";
 		String encoding = "UTF-8";
@@ -64,6 +64,6 @@ public class ClientUtils {
         Mac mac = Mac.getInstance(macMethod);//生成一个指定 Mac算法 的 Mac对象     
         mac.init(secretKey);//用给定密钥初始化 Mac 对象      
         byte[] text = encryptText.getBytes(encoding);    
-        return new String(mac.doFinal(text));    
+        return mac.doFinal(text);    
     }
 }
