@@ -15,14 +15,17 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.njuptjsy.cloudclient.MyAdapter.ViewHolder;
 import com.njuptjsy.cloudclient.authen.AWSAuthen;
 import com.njuptjsy.cloudclient.authen.AliyunAuthen;
+import com.njuptjsy.cloudclient.authen.OpenStackAuthen;
 import com.njuptjsy.cloudclient.authen.UserAuthen;
 import com.njuptjsy.cloudclient.download.AWSDownload;
 import com.njuptjsy.cloudclient.download.AliyunDownload;
 import com.njuptjsy.cloudclient.download.Download;
+import com.njuptjsy.cloudclient.download.OpenStackDownload;
 import com.njuptjsy.cloudclient.query.DeviceInfo;
 import com.njuptjsy.cloudclient.query.QueryAWS;
 import com.njuptjsy.cloudclient.query.QueryAliyun;
 import com.njuptjsy.cloudclient.query.QueryCloud;
+import com.njuptjsy.cloudclient.query.QueryOpenStack;
 import com.njuptjsy.cloudclient.upload.SelectFilesActivity;
 import com.njuptjsy.cloudclient.utils.InfoContainer;
 import com.njuptjsy.cloudclient.utils.LogUtil;
@@ -181,7 +184,7 @@ public class MainActivity extends BaseActivity {
 					download = new AWSDownload(selectedFlies,MainActivity.this,mainHandler);
 					break;
 				case 2:
-
+					download = new OpenStackDownload(selectedFlies, MainActivity.this, mainHandler);
 					break;
 				default:
 					break;
@@ -263,7 +266,7 @@ public class MainActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				LogUtil.i(tag, "login button is clicked");
-				if (InfoContainer.userAuthenIsRunning) {
+				if (InfoContainer.USERAUTHENISRUNNING) {
 					LogUtil.i(tag, "Authen thread is running");
 					Toast.makeText(MainActivity.this,getString(R.string.loginnow), Toast.LENGTH_LONG).show();
 					return;
@@ -282,7 +285,7 @@ public class MainActivity extends BaseActivity {
 					authen = new AWSAuthen(name, pwd,MainActivity.this,mainHandler);
 					break;
 				case 2:
-
+					authen = new OpenStackAuthen(name, pwd,MainActivity.this,mainHandler);
 					break;
 				default:
 					break;
@@ -553,7 +556,7 @@ public class MainActivity extends BaseActivity {
 					authenInfo.setText(getString(R.string.logtocloud)+" "+cloudName);
 					setActiveView(enumView.vafterAuthen);
 					break;
-				case LOGIN_FAILED_RETRY:
+				case NO_RESPONSE_RETRY:
 					Toast.makeText(MainActivity.this, getString(R.string.login_failed_retry), Toast.LENGTH_LONG).show();
 					break;
 				case LOGIN_FAILED_NO_INTERNET:
@@ -606,7 +609,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private void startQueryCloud(int selectedCloud){
-		if (InfoContainer.queryCloudIsRunning) {
+		if (InfoContainer.QUERYCLOUDISRUNNING) {
 			return;
 		}
 		
@@ -620,7 +623,7 @@ public class MainActivity extends BaseActivity {
 			queryCloud = new QueryAWS(MainActivity.this,messageHandler,mainHandler);
 			break;
 		case 2:
-
+			queryCloud = new QueryOpenStack(MainActivity.this, messageHandler, mainHandler);
 			break;
 		default:
 			break;

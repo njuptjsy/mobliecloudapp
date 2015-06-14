@@ -1,7 +1,5 @@
 package com.njuptjsy.cloudclient.utils;
 
-import com.njuptjsy.cloudclient.query.QueryAWS;
-
 public class InfoContainer {
 	public static final String AWS_ACCOUNT_ID = "328837747656";//AWS Account id
 	public static final String COGNITO_POOL_ID = "us-east-1:1d55d22b-0386-4cba-a075-1b0bc7a8ca82";// Identity Pool ID
@@ -13,17 +11,21 @@ public class InfoContainer {
 	public static final String ALIYUN_ACCESS_ID = "o7AhHgNtyuLUqOSE";
 	public static final String ALIYUN_SCRECT_ID = "bD2sQpyJzgkhIbfKOlshKLVwkNWYr6";
 	
+	public static final String OPENSTACK_BUCKET_NAME = "";
+	public static final String OPENSTACK_ACCESS_ID = "demo:demo";// tenantName:userName
+	public static final String OPENSTACK_SCRECT_ID = "devstack";
+	
 	public static final String USER_NAME = "admin";
 	public static final String PASSWORD = "admin";
 	
-	public static boolean userAuthenIsRunning;
-	public static boolean queryCloudIsRunning;
+	public static boolean USERAUTHENISRUNNING;
+	public static boolean QUERYCLOUDISRUNNING;
 	public static boolean USERISLEGAL;
 	
 	public static enum MESSAGE_TYPE{
 		USER_UNAUTHEN_FAIL,
 		LOGIN_SUCCESS,
-		LOGIN_FAILED_RETRY,
+		NO_RESPONSE_RETRY,
 		LOGIN_FAILED_NO_INTERNET,
 		UPLOAD_SUCCESS,
 		QUERY_RESULT,

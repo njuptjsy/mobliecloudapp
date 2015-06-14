@@ -45,26 +45,26 @@ public class AWSAuthen implements UserAuthen{
 	}
 
 	public void run(){
-		InfoContainer.userAuthenIsRunning = true;
-		String tag = "UserAuthen:run";
+		InfoContainer.USERAUTHENISRUNNING = true;
+		String tag = "AWSAuthen:run";
 		InfoContainer.USERISLEGAL = authenticate(username,pwd,InfoContainer.CLOUD.AWS);
 		if (InfoContainer.USERISLEGAL) {
 			login();
-			InfoContainer.userAuthenIsRunning = false;
+			InfoContainer.USERAUTHENISRUNNING = false;
 		}
 		else {
 			Log.e(tag, "cloudclient user unauthenticated");
 			sendLoginResult(MESSAGE_TYPE.USER_UNAUTHEN_FAIL);//cloudclient user unauthenticated.this information will make a toast in main UI
-			InfoContainer.userAuthenIsRunning = false;
+			InfoContainer.USERAUTHENISRUNNING = false;
 			return;
 		}
 		
 	}
 
 	@Override
-	public void login()
+	public void login()//进行认证
 	{
-		String tag = "UserAuthen:login";
+		String tag = "AWSAuthen:login";
 		boolean reponse = false;
 		if (ClientUtils.connectInternet(context))
 		{	
@@ -79,13 +79,12 @@ public class AWSAuthen implements UserAuthen{
 				sendLoginResult(MESSAGE_TYPE.LOGIN_SUCCESS);//login success
 			}
 			else {
-				sendLoginResult(MESSAGE_TYPE.LOGIN_FAILED_RETRY);//login failed , please retry 
+				sendLoginResult(MESSAGE_TYPE.NO_RESPONSE_RETRY);//login failed , please retry 
 			}
 		}
 		else {
 			sendLoginResult(MESSAGE_TYPE.LOGIN_FAILED_NO_INTERNET);//login failed ,not Internet connect
 		}
-
 	}
 
 	public static CognitoCachingCredentialsProvider getCredentialsProvider(Context context){

@@ -40,17 +40,17 @@ public class AliyunAuthen implements UserAuthen{
 
 	@Override
 	public void run() {
-		InfoContainer.userAuthenIsRunning = true;
+		InfoContainer.USERAUTHENISRUNNING = true;
 		String tag = "UserAuthen:run";
 		InfoContainer.USERISLEGAL = authenticate(username,pwd,InfoContainer.CLOUD.ALIYUN);
 		if (InfoContainer.USERISLEGAL) {
 			login();
-			InfoContainer.userAuthenIsRunning = false;
+			InfoContainer.USERAUTHENISRUNNING = false;
 		}
 		else {
 			Log.e(tag, "cloudclient user unauthenticated");
 			sendLoginResult(MESSAGE_TYPE.USER_UNAUTHEN_FAIL);//cloudclient user unauthenticated.this information will make a toast in main UI
-			InfoContainer.userAuthenIsRunning = false;
+			InfoContainer.USERAUTHENISRUNNING = false;
 			return;
 		}
 	}
@@ -66,7 +66,7 @@ public class AliyunAuthen implements UserAuthen{
 			}
 			else
 			{
-				sendLoginResult(MESSAGE_TYPE.LOGIN_FAILED_RETRY);
+				sendLoginResult(MESSAGE_TYPE.NO_RESPONSE_RETRY);
 			}
 		}
 		else {

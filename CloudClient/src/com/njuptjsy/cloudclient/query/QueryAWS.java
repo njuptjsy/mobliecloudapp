@@ -34,10 +34,10 @@ public class QueryAWS  implements QueryCloud{
 	}
 
 	public void run(){
-		InfoContainer.queryCloudIsRunning = true;
+		InfoContainer.QUERYCLOUDISRUNNING = true;
 		Looper.prepare();
 		sendQueryResult();
-		InfoContainer.queryCloudIsRunning = false;
+		InfoContainer.QUERYCLOUDISRUNNING = false;
 	}
 
 	private Map<String, List<String>> setQueryResult() {//查询返回的数据结构是bucket对应与用list包含的该bucket中所有的bucket
@@ -96,7 +96,7 @@ public class QueryAWS  implements QueryCloud{
 		Map<MESSAGE_TYPE, Map<String, List<String>>> resultMap = new HashMap<MESSAGE_TYPE, Map<String, List<String>>>();
 		Map<String, List<String>> qureyResult = setQueryResult();
 		if (qureyResult == null) {
-			message.obj = InfoContainer.MESSAGE_TYPE.LOGIN_FAILED_RETRY;
+			message.obj = InfoContainer.MESSAGE_TYPE.NO_RESPONSE_RETRY;
 			mainHandler.sendMessage(message);
 		}
 		else {
